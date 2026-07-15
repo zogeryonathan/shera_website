@@ -1,4 +1,5 @@
 :root {
+  --header-height: 110px;
   --ink: #251f1b;
   --muted: #6f6760;
   --paper: #fbf7f1;
@@ -44,7 +45,7 @@ a {
 .nav {
   max-width: 1180px;
   margin: 0 auto;
-  min-height: 74px;
+  min-height: var(--header-height);
   padding: 0 22px;
   display: flex;
   align-items: center;
@@ -68,6 +69,23 @@ a {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+.brand--logo {
+  width: 220px;
+  height: 100px;
+  position: relative;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+.brand-logo {
+  width: 240px;
+  max-width: none;
+  position: absolute;
+  top: -20px;
+  left: -10px;
+  mix-blend-mode: multiply;
 }
 
 .nav-links {
@@ -118,7 +136,7 @@ a {
 }
 
 .hero {
-  min-height: calc(100vh - 74px);
+  min-height: calc(100vh - var(--header-height));
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(360px, 0.92fr);
   align-items: stretch;
@@ -409,6 +427,18 @@ textarea {
     width: 100%;
     overflow-x: auto;
     padding-bottom: 2px;
+  }
+
+  .brand--logo {
+    width: 200px;
+    height: 90px;
+    align-self: center;
+  }
+
+  .brand-logo {
+    width: 218px;
+    top: -18px;
+    left: -9px;
   }
 
   .hero,

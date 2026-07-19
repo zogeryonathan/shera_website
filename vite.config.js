@@ -19,6 +19,7 @@ export default defineConfig({
         pricing: resolve(import.meta.dirname, "pricing.html"),
         booking: resolve(import.meta.dirname, "booking.html"),
         admin: resolve(import.meta.dirname, "admin.html"),
+        adminBookings: resolve(import.meta.dirname, "admin-bookings.html"),
       },
     },
   },

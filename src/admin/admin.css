@@ -9,6 +9,7 @@ body.admin-body { margin: 0; background: var(--admin-bg); color: var(--admin-ink
 .google-signin-button { min-height: 44px; }
 .admin-shell { min-height: 100vh; }
 .admin-header { display: grid; grid-template-columns: 180px 1fr auto; align-items: center; gap: 28px; padding: 22px max(24px, calc((100vw - 1240px) / 2)); border-bottom: 1px solid var(--admin-line); background: var(--admin-card); }
+.admin-header__actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
 .admin-header img { display: block; width: 170px; }
 .admin-header h1 { margin: 0; font-size: clamp(2rem, 4vw, 3.4rem); }
 .admin-header .eyebrow { margin: 0 0 4px; }

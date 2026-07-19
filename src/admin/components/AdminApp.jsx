@@ -6,6 +6,7 @@ import { ScheduleManager } from "./ScheduleManager.jsx";
 import { SummaryCards } from "./SummaryCards.jsx";
 
 export function AdminApp() {
+  const isDailyBookingsPage = window.location.pathname.endsWith("/admin-bookings.html");
   const [credential, setCredential] = useState("");
   const [dashboard, setDashboard] = useState(null);
   const [activeView, setActiveView] = useState("classes");
@@ -17,10 +18,11 @@ export function AdminApp() {
   const filteredClasses = useMemo(() => {
     if (!dashboard) return [];
     return dashboard.classes.filter((classItem) => {
-      const matchesView = classView === "history" ? classItem.isPast : !classItem.isPast;
-      return matchesView && (!selectedDate || classItem.date === selectedDate);
+      const matchesView = isDailyBookingsPage || (classView === "history" ? classItem.isPast : !classItem.isPast);
+      const matchesDate = selectedDate ? classItem.date === selectedDate : !isDailyBookingsPage;
+      return matchesView && matchesDate;
     });
-  }, [dashboard, classView, selectedDate]);
+  }, [dashboard, classView, isDailyBookingsPage, selectedDate]);
   const filteredSummary = useMemo(() => ({
     upcomingClasses: filteredClasses.length,
     activeBookings: filteredClasses.reduce((total, classItem) => total + classItem.bookedCount, 0),
@@ -68,21 +70,24 @@ export function AdminApp() {
     <div className="admin-shell">
       <header className="admin-header">
         <a href="index.html" aria-label="Sherazade Mami home"><img src="/assets/images/sherazade-mami-logo.png" alt="Sherazade Mami" /></a>
-        <div><p className="eyebrow">Studio owner</p><h1>Booking dashboard</h1></div>
-        <button className="button secondary" type="button" onClick={() => { window.google?.accounts?.id?.disableAutoSelect(); setCredential(""); setDashboard(null); }}>Sign Out</button>
+        <div><p className="eyebrow">Studio owner</p><h1>{isDailyBookingsPage ? "Daily bookings" : "Booking dashboard"}</h1></div>
+        <div className="admin-header__actions">
+          <a className="button secondary" href={isDailyBookingsPage ? "admin.html" : "admin-bookings.html"}>{isDailyBookingsPage ? "Dashboard" : "Daily Bookings"}</a>
+          <button className="button secondary" type="button" onClick={() => { window.google?.accounts?.id?.disableAutoSelect(); setCredential(""); setDashboard(null); }}>Sign Out</button>
+        </div>
       </header>
       <main className="admin-main">
-        <SummaryCards summary={filteredSummary} />
+        {!isDailyBookingsPage && <SummaryCards summary={filteredSummary} />}
         {status && <div className={`admin-alert admin-alert--${status.type}`} role="status">{status.message}</div>}
-        <nav className="admin-tabs" aria-label="Dashboard sections">
+        {!isDailyBookingsPage && <nav className="admin-tabs" aria-label="Dashboard sections">
           <button type="button" className={activeView === "classes" ? "active" : ""} onClick={() => setActiveView("classes")}>Classes & Bookings</button>
           <button type="button" className={activeView === "schedule" ? "active" : ""} onClick={() => setActiveView("schedule")}>Weekly Schedule</button>
           <button type="button" onClick={() => loadDashboard(credential)} disabled={isBusy}>Refresh</button>
-        </nav>
+        </nav>}
         {isBusy && <div className="admin-progress" role="status">Updating dashboard…</div>}
-        {activeView === "classes" ? (
+        {(isDailyBookingsPage || activeView === "classes") ? (
           <ClassManager classes={filteredClasses} templates={dashboard.templates} isBusy={isBusy} classView={classView} selectedDate={selectedDate}
-            onClassView={setClassView} onDate={setSelectedDate}
+            dailyBookings={isDailyBookingsPage} onClassView={setClassView} onDate={setSelectedDate}
             onCreate={(item) => mutate(() => createClass(credential, item), "Class added.")}
             onUpdate={(item) => mutate(() => updateClass(credential, item), "Class updated.")}
             onDelete={(classId) => { if (window.confirm("Delete this class?")) mutate(() => deleteClass(credential, classId), "Class deleted."); }}

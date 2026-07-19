@@ -1,10 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
-import { cancelClientBooking, createClass, deleteClass, generateClasses, getAdminDashboard, updateClass, updateTemplate } from "../adminService.js";
+import { cancelClientBooking, createClass, createTemplate, deleteClass, generateClasses, getAdminDashboard, updateClass, updateTemplate } from "../adminService.js";
 import { ClassManager } from "./ClassManager.jsx";
 import { GoogleAdminLogin } from "./GoogleAdminLogin.jsx";
 import { ScheduleManager } from "./ScheduleManager.jsx";
 import { SummaryCards } from "./SummaryCards.jsx";
-import { DayFilter } from "../../shared/DayFilter.jsx";
 
 export function AdminApp() {
   const [credential, setCredential] = useState("");
@@ -12,15 +11,16 @@ export function AdminApp() {
   const [activeView, setActiveView] = useState("classes");
   const [isBusy, setIsBusy] = useState(false);
   const [status, setStatus] = useState(null);
-  const [selectedDay, setSelectedDay] = useState("All");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [classView, setClassView] = useState("upcoming");
 
-  const availableDays = useMemo(() => (
-    dashboard ? [...new Set(dashboard.classes.map((classItem) => classItem.day))] : []
-  ), [dashboard]);
   const filteredClasses = useMemo(() => {
-    if (!dashboard || selectedDay === "All") return dashboard?.classes || [];
-    return dashboard.classes.filter((classItem) => classItem.day === selectedDay);
-  }, [dashboard, selectedDay]);
+    if (!dashboard) return [];
+    return dashboard.classes.filter((classItem) => {
+      const matchesView = classView === "history" ? classItem.isPast : !classItem.isPast;
+      return matchesView && (!selectedDate || classItem.date === selectedDate);
+    });
+  }, [dashboard, classView, selectedDate]);
   const filteredSummary = useMemo(() => ({
     upcomingClasses: filteredClasses.length,
     activeBookings: filteredClasses.reduce((total, classItem) => total + classItem.bookedCount, 0),
@@ -74,7 +74,6 @@ export function AdminApp() {
       <main className="admin-main">
         <SummaryCards summary={filteredSummary} />
         {status && <div className={`admin-alert admin-alert--${status.type}`} role="status">{status.message}</div>}
-        <DayFilter days={availableDays} selectedDay={selectedDay} onSelect={setSelectedDay} label="Show status for" />
         <nav className="admin-tabs" aria-label="Dashboard sections">
           <button type="button" className={activeView === "classes" ? "active" : ""} onClick={() => setActiveView("classes")}>Classes & Bookings</button>
           <button type="button" className={activeView === "schedule" ? "active" : ""} onClick={() => setActiveView("schedule")}>Weekly Schedule</button>
@@ -82,7 +81,8 @@ export function AdminApp() {
         </nav>
         {isBusy && <div className="admin-progress" role="status">Updating dashboard…</div>}
         {activeView === "classes" ? (
-          <ClassManager classes={filteredClasses} templates={dashboard.templates} isBusy={isBusy}
+          <ClassManager classes={filteredClasses} templates={dashboard.templates} isBusy={isBusy} classView={classView} selectedDate={selectedDate}
+            onClassView={setClassView} onDate={setSelectedDate}
             onCreate={(item) => mutate(() => createClass(credential, item), "Class added.")}
             onUpdate={(item) => mutate(() => updateClass(credential, item), "Class updated.")}
             onDelete={(classId) => { if (window.confirm("Delete this class?")) mutate(() => deleteClass(credential, classId), "Class deleted."); }}
@@ -90,6 +90,7 @@ export function AdminApp() {
         ) : (
           <ScheduleManager templates={dashboard.templates} isBusy={isBusy}
             onUpdate={(item) => mutate(() => updateTemplate(credential, item), "Weekly schedule updated.")}
+            onCreate={(item) => mutate(() => createTemplate(credential, item), "Weekly class added. Generate future dates when you are ready.")}
             onGenerate={() => mutate(() => generateClasses(credential), "Missing classes generated.")} />
         )}
       </main>

@@ -61,6 +61,10 @@ export function updateTemplate(credential, template) {
   return adminRequest("adminUpdateTemplate", credential, template);
 }
 
+export function createTemplate(credential, template) {
+  return adminRequest("adminCreateTemplate", credential, template);
+}
+
 export function generateClasses(credential) {
   return adminRequest("adminGenerateClasses", credential);
 }

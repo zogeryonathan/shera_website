@@ -104,6 +104,23 @@
   color: var(--white);
 }
 
+.calendar-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 14px 20px;
+  margin: 0 0 28px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+}
+
+.calendar-filter .eyebrow { margin: 0 0 3px; }
+.calendar-filter label { display: grid; gap: 6px; min-width: 190px; color: var(--muted); font-size: .75rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+.calendar-filter input { min-height: 42px; }
+.calendar-filter .button { min-height: 42px; }
+
 .booking-confirmation {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
@@ -154,6 +171,8 @@
   text-align: center;
   text-transform: uppercase;
 }
+
+.schedule-day__title span { display: block; margin-top: 3px; font-size: .72rem; font-weight: 700; letter-spacing: .03em; }
 
 .schedule-day--2 .schedule-day__title,
 .schedule-day--4 .schedule-day__title {
@@ -494,6 +513,9 @@ input[aria-invalid="true"] {
   .day-filter__label {
     width: 100%;
   }
+
+  .calendar-filter { align-items: stretch; }
+  .calendar-filter > * { width: 100%; }
 
   .refresh-button {
     width: 100%;

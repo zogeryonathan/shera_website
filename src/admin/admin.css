@@ -26,6 +26,14 @@ body.admin-body { margin: 0; background: var(--admin-bg); color: var(--admin-ink
 .admin-panel__head h2 { margin: 0; font-size: clamp(2rem, 4vw, 3.1rem); }
 .admin-panel__head .eyebrow { margin: 0 0 5px; }
 .admin-help { max-width: 850px; margin: -8px 0 24px; color: var(--admin-muted); }
+.admin-class-toolbar { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 0 0 20px; padding: 14px; border: 1px solid var(--admin-line); border-radius: 12px; background: #f7f1e8; }
+.admin-class-toolbar label { min-width: 190px; }
+.admin-segmented { display: inline-flex; overflow: hidden; border: 1px solid var(--admin-line); border-radius: 8px; background: white; }
+.admin-segmented button { min-height: 42px; padding: 9px 13px; border: 0; border-right: 1px solid var(--admin-line); background: transparent; color: var(--admin-muted); font: inherit; font-weight: 800; cursor: pointer; }
+.admin-segmented button:last-child { border-right: 0; }
+.admin-segmented button.active { background: var(--admin-sage); color: white; }
+.admin-empty { margin: 0; padding: 22px; border: 1px dashed var(--admin-line); border-radius: 10px; color: var(--admin-muted); text-align: center; }
+.admin-template-card--new { border-color: #b9cfc8; background: #edf7f3; }
 .admin-add-class, .admin-class-card__controls, .admin-template-card { display: grid; grid-template-columns: 2fr 1fr .7fr auto; align-items: end; gap: 14px; }
 .admin-add-class { margin-bottom: 24px; padding: 18px; border-radius: 12px; background: #f7f1e8; }
 .admin-panel label { display: grid; gap: 6px; color: var(--admin-muted); font-size: .73rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; }
@@ -73,4 +81,7 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .admin-add-class, .admin-class-card__controls, .admin-template-card, .admin-booking-row { grid-template-columns: 1fr; }
   .admin-tabs button { width: 100%; }
   .admin-tabs button:last-child { margin-left: 0; }
+  .admin-class-toolbar { align-items: stretch; flex-direction: column; }
+  .admin-class-toolbar > * { width: 100%; }
+  .admin-segmented button { flex: 1; }
 }

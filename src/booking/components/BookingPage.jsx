@@ -5,21 +5,17 @@ import { BookingModal } from "./BookingModal.jsx";
 import { ClassCard } from "./ClassCard.jsx";
 import { ManageBookingModal } from "./ManageBookingModal.jsx";
 import { StatusMessage } from "./StatusMessage.jsx";
-import { DayFilter } from "../../shared/DayFilter.jsx";
 
 const DAY_ORDER = Object.freeze(["Monday", "Tuesday", "Wednesday", "Friday", "Saturday"]);
 const AUTO_REFRESH_MS = 30000;
 
-function groupClassesByDay(classes) {
-  const groups = new Map(DAY_ORDER.map((day) => [day, []]));
-
+function groupClassesByDate(classes) {
+  const groups = new Map();
   for (const classItem of classes) {
-    if (!groups.has(classItem.day)) groups.set(classItem.day, []);
-    groups.get(classItem.day).push(classItem);
+    if (!groups.has(classItem.dateIso)) groups.set(classItem.dateIso, []);
+    groups.get(classItem.dateIso).push(classItem);
   }
-
-  return Array.from(groups, ([day, items]) => ({ day, items }))
-    .filter(({ items }) => items.length > 0);
+  return Array.from(groups, ([dateIso, items]) => ({ dateIso, items }));
 }
 
 export function BookingPage() {
@@ -31,13 +27,13 @@ export function BookingPage() {
   const [latestBooking, setLatestBooking] = useState(() => getLatestBooking());
   const [confirmation, setConfirmation] = useState(null);
   const [status, setStatus] = useState(null);
-  const [selectedDay, setSelectedDay] = useState("All");
+  const [selectedDate, setSelectedDate] = useState("");
 
-  const availableDays = useMemo(() => DAY_ORDER.filter((day) => classes.some((classItem) => classItem.day === day)), [classes]);
+  const availableDates = useMemo(() => [...new Set(classes.map((classItem) => classItem.dateIso))], [classes]);
   const filteredClasses = useMemo(() => (
-    selectedDay === "All" ? classes : classes.filter((classItem) => classItem.day === selectedDay)
-  ), [classes, selectedDay]);
-  const classGroups = useMemo(() => groupClassesByDay(filteredClasses), [filteredClasses]);
+    !selectedDate ? classes : classes.filter((classItem) => classItem.dateIso === selectedDate)
+  ), [classes, selectedDate]);
+  const classGroups = useMemo(() => groupClassesByDate(filteredClasses), [filteredClasses]);
 
   const loadUpcomingClasses = useCallback(async ({ showLoader = true, silent = false } = {}) => {
     if (showLoader) setIsLoading(true);
@@ -164,8 +160,14 @@ export function BookingPage() {
             <p className="auto-refresh-note">Availability refreshes automatically every 30 seconds.</p>
           )}
 
-          {!isLoading && !loadError && availableDays.length > 0 && (
-            <DayFilter days={availableDays} selectedDay={selectedDay} onSelect={setSelectedDay} label="Choose a day" />
+          {!isLoading && !loadError && availableDates.length > 0 && (
+            <div className="calendar-filter">
+              <div><p className="eyebrow">Calendar</p><strong>Choose the exact date you want to attend.</strong></div>
+              <label>Class date
+                <input type="date" min={availableDates[0]} max={availableDates[availableDates.length - 1]} value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} />
+              </label>
+              {selectedDate && <button className="button secondary" type="button" onClick={() => setSelectedDate("")}>Show All Dates</button>}
+            </div>
           )}
 
           {isLoading && (
@@ -200,9 +202,9 @@ export function BookingPage() {
 
           {!isLoading && !loadError && classGroups.length > 0 && (
             <div className="schedule-grid">
-              {classGroups.map(({ day, items }, dayIndex) => (
-                <section className={`schedule-day schedule-day--${dayIndex + 1}`} key={day} aria-labelledby={`day-${day.toLowerCase()}`}>
-                  <h3 className="schedule-day__title" id={`day-${day.toLowerCase()}`}>{day}</h3>
+              {classGroups.map(({ dateIso, items }, dayIndex) => (
+                <section className={`schedule-day schedule-day--${dayIndex + 1}`} key={dateIso} aria-labelledby={`date-${dateIso}`}>
+                  <h3 className="schedule-day__title" id={`date-${dateIso}`}>{items[0].day} <span>{items[0].date}</span></h3>
                   <div className="schedule-day__classes">
                     {items.map((classItem) => (
                       <ClassCard classItem={classItem} key={classItem.classId} onReserve={handleReserve} />

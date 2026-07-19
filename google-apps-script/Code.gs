@@ -412,6 +412,7 @@ function handleAdminAction_(action, request) {
   if (action === "admindeleteclass") return deleteClassFromAdmin_(request);
   if (action === "admincancelbooking") return cancelBookingFromAdmin_(request);
   if (action === "adminupdatetemplate") return updateTemplateFromAdmin_(request);
+  if (action === "admincreatetemplate") return createTemplateFromAdmin_(request);
   if (action === "admingenerateclasses") {
     const createdCount = generateClassesForNextWeeks(DEFAULT_WEEKS_TO_GENERATE);
     return jsonResponse_({ success: true, message: createdCount + " class rows were created." });
@@ -452,11 +453,11 @@ function getAdminDashboard_() {
     return [String(template.TemplateID), template];
   }));
 
-  const upcomingClasses = classes
+  const dashboardClasses = classes
     .map(function (classRow) {
       const date = normalizeDate_(classRow.Date);
       const template = templateMap.get(String(classRow.TemplateID));
-      if (!date || !template || date.getTime() < startOfToday_().getTime()) return null;
+      if (!date || !template) return null;
       const classId = String(classRow.ClassID);
       const classBookings = bookings
         .filter(function (booking) { return String(booking.ClassID) === classId; })
@@ -483,6 +484,7 @@ function getAdminDashboard_() {
         capacity: capacity,
         bookedCount: activeCount,
         remainingSpots: Math.max(0, capacity - activeCount),
+        isPast: date.getTime() < startOfToday_().getTime(),
         bookings: classBookings,
         rawDate: date,
       };
@@ -492,7 +494,7 @@ function getAdminDashboard_() {
     .map(function (classItem) { delete classItem.rawDate; return classItem; });
 
   return {
-    classes: upcomingClasses,
+    classes: dashboardClasses,
     templates: templates.map(function (template) {
       return {
         templateId: String(template.TemplateID),
@@ -504,9 +506,9 @@ function getAdminDashboard_() {
       };
     }),
     summary: {
-      upcomingClasses: upcomingClasses.length,
-      activeBookings: upcomingClasses.reduce(function (total, item) { return total + item.bookedCount; }, 0),
-      fullClasses: upcomingClasses.filter(function (item) { return item.remainingSpots === 0; }).length,
+      upcomingClasses: dashboardClasses.filter(function (item) { return !item.isPast; }).length,
+      activeBookings: dashboardClasses.filter(function (item) { return !item.isPast; }).reduce(function (total, item) { return total + item.bookedCount; }, 0),
+      fullClasses: dashboardClasses.filter(function (item) { return !item.isPast && item.remainingSpots === 0; }).length,
     },
   };
 }
@@ -601,6 +603,27 @@ function updateTemplateFromAdmin_(request) {
     day, safeSheetText_(time), safeSheetText_(className), safeSheetText_(instructor), capacity,
   ]]);
   return jsonResponse_({ success: true, message: "Weekly schedule updated." });
+}
+
+function createTemplateFromAdmin_(request) {
+  const day = cleanValue_(request.day, 20);
+  const time = cleanValue_(request.time, 80);
+  const className = cleanValue_(request.className, 120);
+  const instructor = cleanValue_(request.instructor, 120);
+  const capacity = Number(request.capacity);
+  if (!day || !time || !className || !instructor || !Number.isFinite(capacity) || capacity < 1) {
+    return jsonResponse_({ success: false, code: "VALIDATION_ERROR", message: "Complete every new weekly class field." });
+  }
+  if (["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].indexOf(day) === -1) {
+    return jsonResponse_({ success: false, code: "INVALID_DAY", message: "Choose a valid weekday." });
+  }
+  const spreadsheet = getSpreadsheet_();
+  validateBookingSheets_(spreadsheet);
+  const templateId = "TPL-" + Utilities.getUuid().slice(0, 8).toUpperCase();
+  spreadsheet.getSheetByName(SHEET_NAMES.TEMPLATES).appendRow([
+    templateId, day, safeSheetText_(time), safeSheetText_(className), safeSheetText_(instructor), capacity,
+  ]);
+  return jsonResponse_({ success: true, message: "Weekly class added." });
 }
 
 function findSheetRow_(sheet, headerName, value) {

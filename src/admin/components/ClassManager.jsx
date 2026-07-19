@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ClassEditor } from "./ClassEditor.jsx";
 
-export function ClassManager({ classes, templates, isBusy, onCreate, onDelete, onUpdate, onCancelBooking }) {
+export function ClassManager({ classes, templates, isBusy, classView, selectedDate, onClassView, onDate, onCreate, onDelete, onUpdate, onCancelBooking }) {
   const [newClass, setNewClass] = useState({ templateId: templates[0]?.templateId || "", date: "", capacity: 10 });
 
   function submitNewClass(event) {
@@ -12,6 +12,14 @@ export function ClassManager({ classes, templates, isBusy, onCreate, onDelete, o
   return (
     <section className="admin-panel" aria-labelledby="classes-admin-title">
       <div className="admin-panel__head"><div><p className="eyebrow">Dated sessions</p><h2 id="classes-admin-title">Classes and clients</h2></div></div>
+      <div className="admin-class-toolbar">
+        <div className="admin-segmented" role="group" aria-label="Class timeframe">
+          <button className={classView === "upcoming" ? "active" : ""} type="button" onClick={() => onClassView("upcoming")}>Upcoming</button>
+          <button className={classView === "history" ? "active" : ""} type="button" onClick={() => onClassView("history")}>Booking History</button>
+        </div>
+        <label>Choose an exact date<input type="date" value={selectedDate} onChange={(event) => onDate(event.target.value)} /></label>
+        {selectedDate && <button className="button secondary" type="button" onClick={() => onDate("")}>Clear Date</button>}
+      </div>
       <form className="admin-add-class" onSubmit={submitNewClass}>
         <label>Class<select value={newClass.templateId} onChange={(event) => setNewClass({ ...newClass, templateId: event.target.value })} required>
           {templates.map((template) => <option value={template.templateId} key={template.templateId}>{template.className} — {template.day}</option>)}
@@ -22,6 +30,7 @@ export function ClassManager({ classes, templates, isBusy, onCreate, onDelete, o
       </form>
 
       <div className="admin-class-list">
+        {classes.length === 0 && <p className="admin-empty">No {classView === "history" ? "past" : "upcoming"} classes match this date.</p>}
         {classes.map((classItem) => (
           <ClassEditor classItem={classItem} isBusy={isBusy} key={`${classItem.classId}-${classItem.date}-${classItem.capacity}`}
             onUpdate={onUpdate} onDelete={onDelete} onCancelBooking={onCancelBooking} />

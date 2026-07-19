@@ -508,6 +508,7 @@ textarea {
 .sage-button:hover { border-color: #315b42; background: #315b42; }
 .service-offerings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(32px, 6vw, 86px); margin: 78px 32px 0; }
 .service-offerings--massage { row-gap: 58px; margin-left: 0; margin-right: 0; }
+.service-assurance { width: fit-content; margin: 38px 0 -32px; padding: 10px 14px; border: 1px solid rgba(71, 121, 90, .28); border-radius: 999px; background: #eef6f3; color: #355f55; font-size: .88rem; font-weight: 800; }
 .service-offering { color: #6f6259; }
 .service-offering__heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .service-offering h2 { margin: 0; color: #1d1b19; font-size: clamp(1.2rem, 1.75vw, 1.55rem); line-height: 1.2; }

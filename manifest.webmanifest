@@ -7,7 +7,7 @@
   "theme_color": "#557b72",
   "description": "Pilates, stretching, and massage therapy in Stittsville, Ottawa.",
   "icons": [
-    { "src": "/assets/images/sherazade-mami-logo.png", "type": "image/png", "sizes": "452x251", "purpose": "any" },
-    { "src": "/assets/images/shera-hero.jpg", "type": "image/jpeg", "purpose": "any maskable" }
+    { "src": "/assets/images/shera-app-icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "/assets/images/shera-app-icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any maskable" }
   ]
 }

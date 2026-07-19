@@ -1,4 +1,4 @@
-const INSTALL_BANNER_KEY = "shera-install-banner-hidden";
+const INSTALL_BANNER_KEY = "shera-install-banner-v2-hidden";
 const isInstalled = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 let deferredInstallPrompt = null;
@@ -20,8 +20,6 @@ window.addEventListener("appinstalled", () => {
 
 function showInstallBanner() {
   if (isInstalled || localStorage.getItem(INSTALL_BANNER_KEY) || document.querySelector(".install-banner")) return;
-  if (!deferredInstallPrompt && !isIos) return;
-
   const banner = document.createElement("aside");
   banner.className = "install-banner";
   banner.setAttribute("role", "dialog");
@@ -29,10 +27,10 @@ function showInstallBanner() {
   banner.innerHTML = `
     <div class="install-banner__copy">
       <strong>Save Shera Studio to your phone</strong>
-      <span>${isIos ? "On iPhone: tap Share, then Add to Home Screen." : "Install the app for quicker access to classes and bookings."}</span>
+      <span>${isIos ? "On iPhone: tap Share, then Add to Home Screen." : deferredInstallPrompt ? "Install the app for quicker access to classes and bookings." : "Open your browser menu and choose Install app or Add to Home Screen."}</span>
     </div>
     <div class="install-banner__actions">
-      ${isIos ? "" : '<button class="install-banner__install" type="button">Install app</button>'}
+      ${deferredInstallPrompt ? '<button class="install-banner__install" type="button">Install app</button>' : ""}
       <button class="install-banner__close" type="button" aria-label="Close install message">Not now</button>
     </div>`;
 
@@ -52,6 +50,4 @@ function showInstallBanner() {
   document.body.append(banner);
 }
 
-window.addEventListener("load", () => {
-  if (isIos) showInstallBanner();
-});
+window.addEventListener("load", showInstallBanner);

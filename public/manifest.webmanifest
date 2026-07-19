@@ -1,0 +1,14 @@
+{
+  "name": "Sherazade Mami Pilates & Massage",
+  "short_name": "Shera Studio",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fbf7f1",
+  "theme_color": "#557b72",
+  "description": "Pilates, stretching, and massage therapy in Stittsville, Ottawa.",
+  "icons": [
+    { "src": "/icons/shera-app-icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "/icons/shera-app-icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any maskable" }
+  ]
+}

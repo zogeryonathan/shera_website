@@ -478,4 +478,43 @@ textarea {
   .button {
     width: 100%;
   }
+
+  .nav {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .nav-links {
+    justify-content: space-between;
+    gap: 0;
+  }
+
+  .nav-links a {
+    padding: 8px 8px;
+    font-size: .88rem;
+  }
 }
+
+/* Classes and massage service pages */
+.service-page { padding: 72px 22px 112px; }
+.service-feature { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr); align-items: center; gap: clamp(48px, 7vw, 112px); }
+.service-feature--reverse { grid-template-columns: minmax(320px, .95fr) minmax(0, 1.05fr); }
+.service-feature__image { overflow: hidden; min-height: 448px; border-radius: 18px; background: #e6e0d7; }
+.service-feature__image img { display: block; width: 100%; height: 100%; min-height: 448px; object-fit: cover; }
+.service-feature__copy .eyebrow { color: #47795a; }
+.service-feature__copy h1 { margin: 0 0 18px; color: #1d1b19; font-size: clamp(2.3rem, 4vw, 4.25rem); line-height: 1.05; }
+.service-feature__copy > p:not(.eyebrow) { max-width: 590px; margin: 0 0 26px; color: #786e65; font-size: 1.08rem; line-height: 1.75; }
+.sage-button { border-color: #47795a; background: #47795a; color: #fff; }
+.sage-button:hover { border-color: #315b42; background: #315b42; }
+.service-offerings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(32px, 6vw, 86px); margin: 78px 32px 0; }
+.service-offerings--massage { row-gap: 58px; margin-left: 0; margin-right: 0; }
+.service-offering { color: #6f6259; }
+.service-offering__heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.service-offering h2 { margin: 0; color: #1d1b19; font-size: clamp(1.2rem, 1.75vw, 1.55rem); line-height: 1.2; }
+.service-offering strong { flex: 0 0 auto; color: #47795a; font-size: .92rem; font-weight: 700; white-space: nowrap; }
+.service-offering span { display: block; margin-top: 14px; color: #b68977; font-size: .72rem; font-weight: 800; letter-spacing: .1em; }
+.service-offering p { margin: 14px 0 16px; font-size: .95rem; line-height: 1.65; }
+.text-link { color: #47795a; font-size: .92rem; font-weight: 800; text-decoration: none; }
+.text-link:hover { color: #315b42; text-decoration: underline; text-underline-offset: 4px; }
+@media (max-width: 880px) { .service-page { padding-top: 48px; } .service-feature, .service-feature--reverse { grid-template-columns: 1fr; gap: 34px; } .service-feature__copy { order: 2; } .service-feature__image { order: 1; min-height: 360px; } .service-feature__image img { min-height: 360px; } .service-offerings, .service-offerings--massage { grid-template-columns: 1fr; gap: 38px; margin: 52px 0 0; } }
+@media (max-width: 560px) { .service-page { padding: 32px 22px 72px; } .service-feature__image, .service-feature__image img { min-height: 270px; } .service-offering__heading { align-items: flex-start; flex-direction: column; gap: 7px; } }

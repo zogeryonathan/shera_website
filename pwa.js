@@ -1,4 +1,3 @@
-const INSTALL_BANNER_KEY = "shera-install-banner-v2-hidden";
 const isInstalled = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 let deferredInstallPrompt = null;
@@ -14,12 +13,12 @@ window.addEventListener("beforeinstallprompt", (event) => {
 });
 
 window.addEventListener("appinstalled", () => {
-  localStorage.setItem(INSTALL_BANNER_KEY, "true");
   document.querySelector(".install-banner")?.remove();
+  document.querySelectorAll("[data-install-app]").forEach((button) => button.remove());
 });
 
 function showInstallBanner() {
-  if (isInstalled || localStorage.getItem(INSTALL_BANNER_KEY) || document.querySelector(".install-banner")) return;
+  if (isInstalled || document.querySelector(".install-banner")) return;
   const banner = document.createElement("aside");
   banner.className = "install-banner";
   banner.setAttribute("role", "dialog");
@@ -35,19 +34,27 @@ function showInstallBanner() {
     </div>`;
 
   banner.querySelector(".install-banner__close").addEventListener("click", () => {
-    localStorage.setItem(INSTALL_BANNER_KEY, "true");
     banner.remove();
   });
 
   banner.querySelector(".install-banner__install")?.addEventListener("click", async () => {
     deferredInstallPrompt.prompt();
     await deferredInstallPrompt.userChoice;
-    localStorage.setItem(INSTALL_BANNER_KEY, "true");
     banner.remove();
     deferredInstallPrompt = null;
   });
 
   document.body.append(banner);
 }
+
+document.querySelectorAll("[data-install-app]").forEach((button) => {
+  if (isInstalled) {
+    button.remove();
+    return;
+  }
+  button.addEventListener("click", () => {
+    showInstallBanner();
+  });
+});
 
 window.addEventListener("load", showInstallBanner);

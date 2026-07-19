@@ -1,5 +1,6 @@
 const isInstalled = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isAndroid = /Android/i.test(navigator.userAgent);
 let deferredInstallPrompt = null;
 
 if ("serviceWorker" in navigator) {
@@ -26,7 +27,7 @@ function showInstallBanner() {
   banner.innerHTML = `
     <div class="install-banner__copy">
       <strong>Save Shera Studio to your phone</strong>
-      <span>${isIos ? "On iPhone: tap Share, then Add to Home Screen." : deferredInstallPrompt ? "Install the app for quicker access to classes and bookings." : "Open your browser menu and choose Install app or Add to Home Screen."}</span>
+      <span>${isIos ? "iPhone: tap Share, then Add to Home Screen." : isAndroid ? "Android Chrome: tap the three dots ⋮ in the top-right corner, then tap Install app." : deferredInstallPrompt ? "Press Install app for quicker access to classes and bookings." : "Open your browser menu and choose Install app or Add to Home Screen."}</span>
     </div>
     <div class="install-banner__actions">
       ${deferredInstallPrompt ? '<button class="install-banner__install" type="button">Install app</button>' : ""}

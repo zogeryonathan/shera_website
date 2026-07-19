@@ -531,3 +531,12 @@ textarea {
 .trust-grid strong { color: var(--sage); font-family: "Playfair Display", Georgia, serif; font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.1; }
 .trust-grid span { color: var(--muted); font-weight: 700; }
 @media (max-width: 880px) { .credentials-grid, .trust-grid { grid-template-columns: 1fr; } }
+
+.install-banner { position: fixed; right: 20px; bottom: 20px; z-index: 100; display: flex; align-items: center; gap: 18px; width: min(500px, calc(100% - 32px)); padding: 16px 18px; border: 1px solid rgba(255,255,255,.42); border-radius: 14px; background: #355f55; box-shadow: 0 18px 50px rgba(37,31,27,.28); color: #fff; }
+.install-banner__copy { display: grid; gap: 3px; }
+.install-banner__copy strong { font-size: .98rem; }
+.install-banner__copy span { font-size: .82rem; line-height: 1.45; opacity: .9; }
+.install-banner__actions { display: flex; flex: 0 0 auto; gap: 8px; }
+.install-banner button { min-height: 38px; padding: 8px 11px; border: 1px solid rgba(255,255,255,.5); border-radius: 7px; background: transparent; color: #fff; font: inherit; font-size: .8rem; font-weight: 800; cursor: pointer; }
+.install-banner__install { background: #fff !important; color: #355f55 !important; }
+@media (max-width: 560px) { .install-banner { right: 12px; bottom: 12px; align-items: stretch; flex-direction: column; width: calc(100% - 24px); } .install-banner__actions { width: 100%; } .install-banner button { flex: 1; } }

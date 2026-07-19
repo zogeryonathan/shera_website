@@ -68,6 +68,42 @@
   font-weight: 700;
 }
 
+.day-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 28px;
+}
+
+.day-filter__label {
+  margin-right: 6px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.day-filter button {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.day-filter button.active {
+  border-color: var(--sage);
+  background: var(--sage);
+  color: var(--white);
+}
+
 .booking-confirmation {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
@@ -449,6 +485,14 @@ input[aria-invalid="true"] {
 
   .booking-confirmation__note {
     grid-column: 1;
+  }
+
+  .day-filter {
+    align-items: flex-start;
+  }
+
+  .day-filter__label {
+    width: 100%;
   }
 
   .refresh-button {

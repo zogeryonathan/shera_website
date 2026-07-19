@@ -5,6 +5,7 @@ import { BookingModal } from "./BookingModal.jsx";
 import { ClassCard } from "./ClassCard.jsx";
 import { ManageBookingModal } from "./ManageBookingModal.jsx";
 import { StatusMessage } from "./StatusMessage.jsx";
+import { DayFilter } from "../../shared/DayFilter.jsx";
 
 const DAY_ORDER = Object.freeze(["Monday", "Tuesday", "Wednesday", "Friday", "Saturday"]);
 const AUTO_REFRESH_MS = 30000;
@@ -30,8 +31,13 @@ export function BookingPage() {
   const [latestBooking, setLatestBooking] = useState(() => getLatestBooking());
   const [confirmation, setConfirmation] = useState(null);
   const [status, setStatus] = useState(null);
+  const [selectedDay, setSelectedDay] = useState("All");
 
-  const classGroups = useMemo(() => groupClassesByDay(classes), [classes]);
+  const availableDays = useMemo(() => DAY_ORDER.filter((day) => classes.some((classItem) => classItem.day === day)), [classes]);
+  const filteredClasses = useMemo(() => (
+    selectedDay === "All" ? classes : classes.filter((classItem) => classItem.day === selectedDay)
+  ), [classes, selectedDay]);
+  const classGroups = useMemo(() => groupClassesByDay(filteredClasses), [filteredClasses]);
 
   const loadUpcomingClasses = useCallback(async ({ showLoader = true, silent = false } = {}) => {
     if (showLoader) setIsLoading(true);
@@ -156,6 +162,10 @@ export function BookingPage() {
 
           {!isLoading && !loadError && (
             <p className="auto-refresh-note">Availability refreshes automatically every 30 seconds.</p>
+          )}
+
+          {!isLoading && !loadError && availableDays.length > 0 && (
+            <DayFilter days={availableDays} selectedDay={selectedDay} onSelect={setSelectedDay} label="Choose a day" />
           )}
 
           {isLoading && (

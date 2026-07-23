@@ -1,113 +1,14 @@
-import { useState } from "react";
-import { cancelBooking } from "../bookingService.js";
+import { useEffect, useState } from "react";
+import { cancelBooking, getClientBookings } from "../bookingService.js";
 import { useModalDialog } from "../hooks/useModalDialog.js";
+import { ClientVerification } from "./ClientVerification.jsx";
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function validateForm(form) {
-  const errors = {};
-  if (!form.firstName.trim()) errors.firstName = "First name is required.";
-  if (!form.lastName.trim()) errors.lastName = "Last name is required.";
-  if (!form.email.trim()) errors.email = "Email is required.";
-  else if (!EMAIL_PATTERN.test(form.email.trim())) errors.email = "Enter a valid email address.";
-  return errors;
-}
-
-export function ManageBookingModal({ latestBooking, onCancel, onCancelled }) {
-  const [form, setForm] = useState({
-    firstName: latestBooking?.firstName || "",
-    lastName: latestBooking?.lastName || "",
-    email: latestBooking?.email || "",
-  });
-  const [errors, setErrors] = useState({});
-  const [submitError, setSubmitError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { modalRef, initialFocusRef } = useModalDialog({ isBusy: isSubmitting, onClose: onCancel });
-
-  function handleChange(event) {
-    const { name, value } = event.target;
-    setForm((current) => ({ ...current, [name]: value }));
-    setErrors((current) => ({ ...current, [name]: "" }));
-    setSubmitError("");
-  }
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-    const nextErrors = validateForm(form);
-    if (Object.keys(nextErrors).length > 0) {
-      setErrors(nextErrors);
-      return;
-    }
-
-    setIsSubmitting(true);
-    setSubmitError("");
-    try {
-      const cancellation = await cancelBooking({
-        firstName: form.firstName.trim(),
-        lastName: form.lastName.trim(),
-        email: form.email.trim().toLowerCase(),
-      });
-      onCancelled(cancellation);
-    } catch (error) {
-      setSubmitError(error.message);
-      setIsSubmitting(false);
-    }
-  }
-
-  return (
-    <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {
-      if (event.target === event.currentTarget && !isSubmitting) onCancel();
-    }}>
-      <section
-        ref={modalRef}
-        className="booking-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="manage-booking-title"
-        aria-describedby="manage-booking-summary"
-      >
-        <div className="booking-modal__head">
-          <p className="eyebrow">Manage booking</p>
-          <h2 id="manage-booking-title">Cancel a reservation</h2>
-          <p id="manage-booking-summary">Enter the same name and email used to reserve the class.</p>
-        </div>
-
-        <form className="booking-modal__form booking-modal__form--single" onSubmit={handleSubmit} noValidate>
-          <label className="field">
-            First Name
-            <input ref={initialFocusRef} name="firstName" autoComplete="given-name" value={form.firstName} onChange={handleChange}
-              aria-invalid={Boolean(errors.firstName)} aria-describedby={errors.firstName ? "cancel-first-name-error" : undefined}
-              disabled={isSubmitting} />
-            {errors.firstName && <span className="field-error" id="cancel-first-name-error">{errors.firstName}</span>}
-          </label>
-
-          <label className="field">
-            Last Name
-            <input name="lastName" autoComplete="family-name" value={form.lastName} onChange={handleChange}
-              aria-invalid={Boolean(errors.lastName)} aria-describedby={errors.lastName ? "cancel-last-name-error" : undefined}
-              disabled={isSubmitting} />
-            {errors.lastName && <span className="field-error" id="cancel-last-name-error">{errors.lastName}</span>}
-          </label>
-
-          <label className="field">
-            Email
-            <input type="email" name="email" autoComplete="email" inputMode="email" value={form.email} onChange={handleChange}
-              aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? "cancel-email-error" : undefined}
-              disabled={isSubmitting} />
-            {errors.email && <span className="field-error" id="cancel-email-error">{errors.email}</span>}
-          </label>
-
-          {submitError && <div className="booking-status booking-status--error" role="alert">{submitError}</div>}
-
-          <div className="booking-modal__actions">
-            <button className="button gold" type="submit" disabled={isSubmitting}>
-              {isSubmitting && <span className="loading-spinner" aria-hidden="true" />}
-              {isSubmitting ? "Cancelling…" : "Cancel Reservation"}
-            </button>
-            <button className="button secondary" type="button" onClick={onCancel} disabled={isSubmitting}>Keep Reservation</button>
-          </div>
-        </form>
-      </section>
-    </div>
-  );
+export function ManageBookingModal({ clientSession, onVerified, onCancel, onCancelled }) {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const { modalRef } = useModalDialog({ isBusy: busy, onClose: onCancel });
+  useEffect(() => { if (!clientSession) return; setBusy(true); getClientBookings(clientSession.token).then(setData).catch((e) => setError(e.message)).finally(() => setBusy(false)); }, [clientSession]);
+  const cancel = async (bookingId) => { if (!window.confirm("Cancel this reservation?")) return; setBusy(true); try { onCancelled(await cancelBooking({ bookingId, clientToken: clientSession.token })); } catch (e) { setError(e.message); setBusy(false); } };
+  return <div className="modal-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onCancel(); }}><section ref={modalRef} className="booking-modal" role="dialog" aria-modal="true"><div className="booking-modal__head"><p className="eyebrow">Manage booking</p><h2>Your reservations</h2><p>Secure email verification protects your bookings.</p></div>{!clientSession ? <ClientVerification onVerified={onVerified} /> : <div className="booking-modal__form">{busy && <p>Loading your reservations…</p>}{error && <div className="booking-status booking-status--error">{error}</div>}{data && <><div className="booking-balance"><strong>Hi {data.client.firstName}</strong><span>{data.client.sessionsRemaining} sessions remaining</span></div>{data.bookings.length ? data.bookings.map((b) => <article className="client-booking-item" key={b.bookingId}><strong>{b.className}</strong><span>{b.date} · {b.time} · {b.attendanceType}</span>{b.canCancel ? <button className="button secondary" onClick={() => cancel(b.bookingId)} disabled={busy}>Cancel reservation</button> : <small>Cancellation window closed — please contact Shera.</small>}</article>) : <p>No upcoming reservations.</p>}</>}<button className="button secondary" type="button" onClick={onCancel}>Close</button></div>}</section></div>;
 }

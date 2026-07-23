@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ClassEditor } from "./ClassEditor.jsx";
 
-export function ClassManager({ classes, templates, isBusy, classView, selectedDate, onClassView, onDate, onCreate, onDelete, onUpdate, onCancelBooking, dailyBookings = false }) {
+export function ClassManager({ classes, templates, isBusy, classView, selectedDate, onClassView, onDate, onCreate, onDelete, onUpdate, onCancelBooking, onCancelClass, dailyBookings = false }) {
   const [newClass, setNewClass] = useState({ templateId: templates[0]?.templateId || "", date: "", capacity: 10 });
 
   function submitNewClass(event) {
@@ -34,7 +34,7 @@ export function ClassManager({ classes, templates, isBusy, classView, selectedDa
         {classes.length === 0 && <p className="admin-empty">No {dailyBookings ? "classes" : classView === "history" ? "past" : "upcoming"} classes match this date.</p>}
         {classes.map((classItem) => (
           <ClassEditor classItem={classItem} isBusy={isBusy} key={`${classItem.classId}-${classItem.date}-${classItem.capacity}`}
-            onUpdate={onUpdate} onDelete={onDelete} onCancelBooking={onCancelBooking} dailyBookings={dailyBookings} />
+            onUpdate={onUpdate} onDelete={onDelete} onCancelBooking={onCancelBooking} onCancelClass={onCancelClass} dailyBookings={dailyBookings} />
         ))}
       </div>
     </section>

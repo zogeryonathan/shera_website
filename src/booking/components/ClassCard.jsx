@@ -1,10 +1,7 @@
 import { memo } from "react";
 
 export const ClassCard = memo(function ClassCard({ classItem, onReserve }) {
-  const isFull = classItem.remainingSpots <= 0;
-  const spotLabel = isFull
-    ? "Class full"
-    : `${classItem.remainingSpots} / ${classItem.capacity} Spots Remaining`;
+  const isFull = classItem.inPersonRemaining <= 0 && classItem.onlineRemaining <= 0;
 
   return (
     <article className={`booking-card${isFull ? " booking-card--full" : ""}`}>
@@ -22,10 +19,8 @@ export const ClassCard = memo(function ClassCard({ classItem, onReserve }) {
           <dt>Instructor</dt>
           <dd>{classItem.instructor}</dd>
         </div>
-        <div>
-          <dt>Availability</dt>
-          <dd className={isFull ? "spots spots--full" : "spots"}>{spotLabel}</dd>
-        </div>
+        <div><dt>In person</dt><dd className="spots">{classItem.inPersonRemaining} / {classItem.inPersonCapacity} spots left</dd></div>
+        <div><dt>Online</dt><dd className="spots">{classItem.onlineCapacity ? `${classItem.onlineRemaining} / ${classItem.onlineCapacity} spots left` : "Not available"}</dd></div>
       </dl>
 
       <button

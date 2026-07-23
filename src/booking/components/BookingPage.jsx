@@ -28,6 +28,12 @@ export function BookingPage() {
   const [confirmation, setConfirmation] = useState(null);
   const [status, setStatus] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
+  const [clientSession, setClientSession] = useState(() => {
+    try {
+      const stored = JSON.parse(window.sessionStorage.getItem("shera-client-session") || "null");
+      return stored && new Date(stored.expiresAt).getTime() > Date.now() ? stored : null;
+    } catch { return null; }
+  });
 
   const availableDates = useMemo(() => [...new Set(classes.map((classItem) => classItem.dateIso))], [classes]);
   const filteredClasses = useMemo(() => (
@@ -75,10 +81,14 @@ export function BookingPage() {
 
   const closeModal = useCallback(() => setSelectedClass(null), []);
 
-  const handleBooked = useCallback(async (bookedClass, booking, client) => {
+  const handleVerified = useCallback((session) => {
+    setClientSession(session);
+    window.sessionStorage.setItem("shera-client-session", JSON.stringify(session));
+  }, []);
+
+  const handleBooked = useCallback(async (bookedClass, booking) => {
     const savedBooking = {
       ...booking,
-      ...client,
       className: bookedClass.className,
       date: bookedClass.date,
       time: bookedClass.time,
@@ -89,6 +99,12 @@ export function BookingPage() {
     setSelectedClass(null);
     setStatus(null);
     await loadUpcomingClasses({ showLoader: false });
+    setClientSession((current) => {
+      if (!current) return current;
+      const updated = { ...current, client: { ...current.client, sessionsRemaining: booking.remainingSessions } };
+      window.sessionStorage.setItem("shera-client-session", JSON.stringify(updated));
+      return updated;
+    });
   }, [loadUpcomingClasses]);
 
   const handleCancelled = useCallback(async (cancellation) => {
@@ -147,9 +163,7 @@ export function BookingPage() {
                 <h3>{confirmation.className}</h3>
                 <p>{confirmation.date} · {confirmation.time}</p>
               </div>
-              <p className="booking-confirmation__note">
-                To cancel, use the same first name, last name, and email entered for this reservation.
-              </p>
+              <p className="booking-confirmation__note">A confirmation email has been sent. Use secure email verification to manage your reservation.</p>
               <button className="button secondary" type="button" onClick={() => setIsManagingBooking(true)}>
                 Manage or Cancel
               </button>
@@ -218,11 +232,13 @@ export function BookingPage() {
       </section>
 
       {selectedClass && (
-        <BookingModal classItem={selectedClass} onCancel={closeModal} onBooked={handleBooked} />
+        <BookingModal classItem={selectedClass} clientSession={clientSession} onVerified={handleVerified} onCancel={closeModal} onBooked={handleBooked} />
       )}
       {isManagingBooking && (
         <ManageBookingModal
           latestBooking={latestBooking}
+          clientSession={clientSession}
+          onVerified={handleVerified}
           onCancel={() => setIsManagingBooking(false)}
           onCancelled={handleCancelled}
         />

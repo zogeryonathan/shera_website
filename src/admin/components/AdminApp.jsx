@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
-import { cancelClientBooking, createClass, createTemplate, deleteClass, generateClasses, getAdminDashboard, updateClass, updateTemplate } from "../adminService.js";
+import { cancelClass, cancelClientBooking, createClass, createClient, createTemplate, deleteClass, generateClasses, getAdminDashboard, topUpClient, updateClass, updateClient, updateTemplate } from "../adminService.js";
 import { ClassManager } from "./ClassManager.jsx";
+import { ClientManager } from "./ClientManager.jsx";
 import { GoogleAdminLogin } from "./GoogleAdminLogin.jsx";
 import { ScheduleManager } from "./ScheduleManager.jsx";
 import { SummaryCards } from "./SummaryCards.jsx";
@@ -82,6 +83,7 @@ export function AdminApp() {
         {!isDailyBookingsPage && <nav className="admin-tabs" aria-label="Dashboard sections">
           <button type="button" className={activeView === "classes" ? "active" : ""} onClick={() => setActiveView("classes")}>Classes & Bookings</button>
           <button type="button" className={activeView === "schedule" ? "active" : ""} onClick={() => setActiveView("schedule")}>Weekly Schedule</button>
+          <button type="button" className={activeView === "clients" ? "active" : ""} onClick={() => setActiveView("clients")}>Clients & Sessions</button>
           <button type="button" onClick={() => loadDashboard(credential)} disabled={isBusy}>Refresh</button>
         </nav>}
         {isBusy && <div className="admin-progress" role="status">Updating dashboard…</div>}
@@ -91,7 +93,13 @@ export function AdminApp() {
             onCreate={(item) => mutate(() => createClass(credential, item), "Class added.")}
             onUpdate={(item) => mutate(() => updateClass(credential, item), "Class updated.")}
             onDelete={(classId) => { if (window.confirm("Delete this class?")) mutate(() => deleteClass(credential, classId), "Class deleted."); }}
+            onCancelClass={(classId) => { if (window.confirm("Cancel this class? All booked clients will be refunded and emailed.")) mutate(() => cancelClass(credential, classId), "Class cancelled."); }}
             onCancelBooking={(bookingId) => { if (window.confirm("Cancel this client booking?")) mutate(() => cancelClientBooking(credential, bookingId), "Booking cancelled."); }} />
+        ) : activeView === "clients" ? (
+          <ClientManager clients={dashboard.clients || []} history={dashboard.sessionHistory || []} isBusy={isBusy}
+            onCreate={(client) => mutate(() => createClient(credential, client), "Client profile created.")}
+            onUpdate={(client) => mutate(() => updateClient(credential, client), "Client details updated.")}
+            onTopUp={(clientId, sessions) => mutate(() => topUpClient(credential, clientId, sessions), "Sessions added.")} />
         ) : (
           <ScheduleManager templates={dashboard.templates} isBusy={isBusy}
             onUpdate={(item) => mutate(() => updateTemplate(credential, item), "Weekly schedule updated.")}

@@ -11,7 +11,9 @@ export function TemplateEditor({ template, isBusy, onUpdate }) {
       <label>Day<select name="day" value={form.day} onChange={change}>{DAYS.map((day) => <option key={day}>{day}</option>)}</select></label>
       <label>Time<input name="time" value={form.time} onChange={change} required /></label>
       <label>Instructor<input name="instructor" value={form.instructor} onChange={change} required /></label>
-      <label>Default Capacity<input name="capacity" type="number" min="1" value={form.capacity} onChange={change} required /></label>
+      <label>In-person capacity<input name="inPersonCapacity" type="number" min="0" value={form.inPersonCapacity ?? form.capacity} onChange={change} required /></label>
+      <label>Online capacity<input name="onlineCapacity" type="number" min="0" value={form.onlineCapacity ?? 0} onChange={change} required /></label>
+      <label>Zoom link<input name="zoomUrl" type="url" value={form.zoomUrl ?? ""} onChange={change} placeholder="https://zoom.us/..." /></label>
       <button className="button secondary" type="submit" disabled={isBusy}>Save Template</button>
     </form>
   );

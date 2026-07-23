@@ -68,3 +68,8 @@ export function createTemplate(credential, template) {
 export function generateClasses(credential) {
   return adminRequest("adminGenerateClasses", credential);
 }
+
+export function createClient(credential, client) { return adminRequest("adminCreateClient", credential, client); }
+export function updateClient(credential, client) { return adminRequest("adminUpdateClient", credential, client); }
+export function topUpClient(credential, clientId, sessions, note = "") { return adminRequest("adminTopUpClient", credential, { clientId, sessions, note }); }
+export function cancelClass(credential, classId) { return adminRequest("adminCancelClass", credential, { classId }); }

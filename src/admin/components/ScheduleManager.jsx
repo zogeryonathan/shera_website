@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { TemplateEditor } from "./TemplateEditor.jsx";
 
-const emptyTemplate = { className: "", day: "Monday", time: "", instructor: "Sherazade", capacity: 10 };
+const emptyTemplate = { className: "", day: "Monday", time: "", instructor: "Sherazade", inPersonCapacity: 10, onlineCapacity: 0, zoomUrl: "" };
 
 export function ScheduleManager({ templates, isBusy, onUpdate, onCreate, onGenerate }) {
   const [newTemplate, setNewTemplate] = useState(emptyTemplate);
@@ -19,7 +19,9 @@ export function ScheduleManager({ templates, isBusy, onUpdate, onCreate, onGener
         <label>Day<select name="day" value={newTemplate.day} onChange={change}>{["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day) => <option key={day}>{day}</option>)}</select></label>
         <label>Time<input name="time" value={newTemplate.time} onChange={change} placeholder="6:00 PM – 7:00 PM" required /></label>
         <label>Instructor<input name="instructor" value={newTemplate.instructor} onChange={change} required /></label>
-        <label>Capacity<input name="capacity" type="number" min="1" value={newTemplate.capacity} onChange={change} required /></label>
+        <label>In-person capacity<input name="inPersonCapacity" type="number" min="0" value={newTemplate.inPersonCapacity} onChange={change} required /></label>
+        <label>Online capacity<input name="onlineCapacity" type="number" min="0" value={newTemplate.onlineCapacity} onChange={change} required /></label>
+        <label>Zoom link<input name="zoomUrl" type="url" value={newTemplate.zoomUrl} onChange={change} placeholder="https://zoom.us/..." /></label>
         <button className="button gold" type="submit" disabled={isBusy}>Add Weekly Class</button>
       </form>
       <div className="admin-template-list">

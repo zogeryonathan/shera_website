@@ -36,7 +36,7 @@ function doPost(event) {
 }
 
 /** Run once after replacing the old Code.gs. It preserves existing data. */
-function upgradeSecureBookingSystem() { const spreadsheet = getSpreadsheet_(); ensureSchema_(spreadsheet); migrateCapacities_(spreadsheet); styleSheets_(spreadsheet); generateClassesForNextWeeks(DEFAULT_WEEKS_TO_GENERATE); }
+function upgradeSecureBookingSystem() { const spreadsheet = getSpreadsheet_(); ensureSchema_(spreadsheet); styleHeaders_(spreadsheet); return "Secure booking sheets are ready."; }
 function setupBookingSheets() { upgradeSecureBookingSystem(); }
 
 function sendVerification_(request, spreadsheet) {
@@ -244,10 +244,9 @@ function cancellationEmail_(person, classData, source, client) { const studio = 
 function zeroEmail_(client) { return email_(client.Email, "Your Shera Studio sessions are finished", "<p>Hi " + escape_(client.FirstName) + ",</p><p>You have used your final available session. Please contact Shera to purchase more classes.</p><p>— Shera Studio</p>", "Hi " + client.FirstName + ", you have used your final available session. Please contact Shera to purchase more classes."); }
 function email_(to, subject, htmlBody, body) { try { MailApp.sendEmail({ to: String(to), subject: subject, htmlBody: htmlBody, body: body, name: "Shera Studio" }); return true; } catch (error) { console.error(error); return false; } }
 
-function ensureSchema_(spreadsheet) { Object.keys(HEADERS).forEach(function (name) { ensureSheet_(spreadsheet, name, HEADERS[name]); }); migrateCapacities_(spreadsheet); }
+function ensureSchema_(spreadsheet) { Object.keys(HEADERS).forEach(function (name) { ensureSheet_(spreadsheet, name, HEADERS[name]); }); }
 function ensureSheet_(spreadsheet, name, headers) { let sheet = spreadsheet.getSheetByName(name); if (!sheet) { sheet = spreadsheet.insertSheet(name); sheet.getRange(1, 1, 1, headers.length).setValues([headers]); return; } if (sheet.getLastRow() === 0) { sheet.getRange(1, 1, 1, headers.length).setValues([headers]); return; } const existing = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), headers.length)).getValues()[0]; headers.forEach(function (header, index) { const current = String(existing[index] || "").trim(); if (!current) sheet.getRange(1, index + 1).setValue(header); else if (current !== header) throw new Error(name + " column " + (index + 1) + " must be named " + header); }); }
-function migrateCapacities_(spreadsheet) { [SHEET_NAMES.TEMPLATES, SHEET_NAMES.CLASSES].forEach(function (name) { const sheet = spreadsheet.getSheetByName(name); if (!sheet || sheet.getLastRow() < 2) return; const map = headers_(sheet), data = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).getValues(); let changed = false; data.forEach(function (row) { if (row[map.InPersonCapacity - 1] === "") { row[map.InPersonCapacity - 1] = Number(row[map.Capacity - 1]) || 0; changed = true; } if (row[map.OnlineCapacity - 1] === "") { row[map.OnlineCapacity - 1] = 0; changed = true; } if (map.Status && !row[map.Status - 1]) { row[map.Status - 1] = "Scheduled"; changed = true; } }); if (changed) sheet.getRange(2, 1, data.length, sheet.getLastColumn()).setValues(data); }); }
-function styleSheets_(spreadsheet) { Object.keys(HEADERS).forEach(function (name) { const sheet = spreadsheet.getSheetByName(name); sheet.setFrozenRows(1); sheet.getRange(1, 1, 1, HEADERS[name].length).setBackground("#557b72").setFontColor("#fff").setFontWeight("bold"); sheet.autoResizeColumns(1, HEADERS[name].length); }); }
+function styleHeaders_(spreadsheet) { Object.keys(HEADERS).forEach(function (name) { const sheet = spreadsheet.getSheetByName(name); sheet.setFrozenRows(1); sheet.getRange(1, 1, 1, HEADERS[name].length).setBackground("#557b72").setFontColor("#fff").setFontWeight("bold"); }); }
 
 function setSpreadsheetId(spreadsheetId) { if (!spreadsheetId) throw new Error("A spreadsheet ID is required."); PropertiesService.getScriptProperties().setProperty("SPREADSHEET_ID", String(spreadsheetId).trim()); }
 function setAdminConfiguration(adminEmail, googleClientId) { if (!adminEmail || !googleClientId) throw new Error("Admin email and Google OAuth client ID are required."); PropertiesService.getScriptProperties().setProperties({ ADMIN_EMAIL: String(adminEmail).trim().toLowerCase(), ADMIN_GOOGLE_CLIENT_ID: String(googleClientId).trim() }); }

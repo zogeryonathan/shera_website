@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ClassEditor } from "./ClassEditor.jsx";
 
 export function ClassManager({ classes, templates, isBusy, classView, selectedDate, onClassView, onDate, onCreate, onDelete, onUpdate, onCancelBooking, onCancelClass, dailyBookings = false }) {
-  const [newClass, setNewClass] = useState({ templateId: templates[0]?.templateId || "", date: "", capacity: 10 });
+  const [newClass, setNewClass] = useState({ templateId: templates[0]?.templateId || "", date: "", inPersonCapacity: 10, onlineCapacity: 0, zoomUrl: "" });
 
   function submitNewClass(event) {
     event.preventDefault();
@@ -26,7 +26,9 @@ export function ClassManager({ classes, templates, isBusy, classView, selectedDa
           {templates.map((template) => <option value={template.templateId} key={template.templateId}>{template.className} — {template.day}</option>)}
         </select></label>
         <label>Date<input type="date" value={newClass.date} onChange={(event) => setNewClass({ ...newClass, date: event.target.value })} required /></label>
-        <label>Capacity<input type="number" min="1" value={newClass.capacity} onChange={(event) => setNewClass({ ...newClass, capacity: event.target.value })} required /></label>
+        <label>In-person capacity<input type="number" min="0" value={newClass.inPersonCapacity} onChange={(event) => setNewClass({ ...newClass, inPersonCapacity: event.target.value })} required /></label>
+        <label>Online capacity<input type="number" min="0" value={newClass.onlineCapacity} onChange={(event) => setNewClass({ ...newClass, onlineCapacity: event.target.value })} required /></label>
+        <label>Zoom link<input type="url" value={newClass.zoomUrl} onChange={(event) => setNewClass({ ...newClass, zoomUrl: event.target.value })} placeholder="https://zoom.us/..." /></label>
         <button className="button gold" type="submit" disabled={isBusy}>Add Class</button>
       </form>}
 

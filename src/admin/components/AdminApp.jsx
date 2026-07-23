@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { cancelClass, cancelClientBooking, createClass, createClient, createTemplate, deleteClass, generateClasses, getAdminDashboard, topUpClient, updateClass, updateClient, updateTemplate } from "../adminService.js";
+import { bookClient, cancelClass, cancelClientBooking, createClass, createClient, createTemplate, deleteClass, generateClasses, getAdminDashboard, topUpClient, updateClass, updateClient, updateTemplate } from "../adminService.js";
 import { ClassManager } from "./ClassManager.jsx";
 import { ClientManager } from "./ClientManager.jsx";
 import { GoogleAdminLogin } from "./GoogleAdminLogin.jsx";
@@ -96,10 +96,11 @@ export function AdminApp() {
             onCancelClass={(classId) => { if (window.confirm("Cancel this class? All booked clients will be refunded and emailed.")) mutate(() => cancelClass(credential, classId), "Class cancelled."); }}
             onCancelBooking={(bookingId) => { if (window.confirm("Cancel this client booking?")) mutate(() => cancelClientBooking(credential, bookingId), "Booking cancelled."); }} />
         ) : activeView === "clients" ? (
-          <ClientManager clients={dashboard.clients || []} history={dashboard.sessionHistory || []} isBusy={isBusy}
+          <ClientManager clients={dashboard.clients || []} history={dashboard.sessionHistory || []} classes={dashboard.classes || []} isBusy={isBusy}
             onCreate={(client) => mutate(() => createClient(credential, client), "Client profile created.")}
             onUpdate={(client) => mutate(() => updateClient(credential, client), "Client details updated.")}
-            onTopUp={(clientId, sessions) => mutate(() => topUpClient(credential, clientId, sessions), "Sessions added.")} />
+            onTopUp={(clientId, sessions) => mutate(() => topUpClient(credential, clientId, sessions), "Sessions added.")}
+            onBook={(booking) => mutate(() => bookClient(credential, booking), "Client booked.")} />
         ) : (
           <ScheduleManager templates={dashboard.templates} isBusy={isBusy}
             onUpdate={(item) => mutate(() => updateTemplate(credential, item), "Weekly schedule updated.")}

@@ -121,6 +121,7 @@ function adminAction_(action, request, spreadsheet) {
   if (action === "admincreateclient") return createClient_(request, spreadsheet);
   if (action === "adminupdateclient") return updateClient_(request, spreadsheet);
   if (action === "admintopupclient") return topUpClient_(request, spreadsheet);
+  if (action === "adminbookforclient") return bookForClientFromAdmin_(request, spreadsheet);
   if (action === "adminupdateclass") return updateClass_(request, spreadsheet);
   if (action === "admincreateclass") return createClass_(request, spreadsheet);
   if (action === "admindeleteclass") return deleteClass_(request, spreadsheet);
@@ -165,6 +166,25 @@ function topUpClient_(request, spreadsheet) {
   const client = clientById_(spreadsheet, clean_(request.clientId, 120)); const sessions = Number(request.sessions); if (!client || !Number.isInteger(sessions) || sessions < 1) return response_({ success: false, code: "VALIDATION_ERROR", message: "Choose a client and enter at least one session." });
   changeBalance_(spreadsheet, client, sessions, "Top-up", "", clean_(request.note, 300) || "Admin session top-up");
   return response_({ success: true, message: sessions + " sessions added to " + client.FirstName + "'s balance." });
+}
+
+function bookForClientFromAdmin_(request, spreadsheet) {
+  const client = clientById_(spreadsheet, clean_(request.clientId, 120));
+  const classId = clean_(request.classId, 120); const attendance = attendance_(request.attendanceType); const note = clean_(request.clientNote, 800);
+  if (!client || !classId || !attendance) return response_({ success: false, code: "VALIDATION_ERROR", message: "Choose a client, class, and attendance type." });
+  if (Number(client.SessionsRemaining) < 1) return response_({ success: false, code: "NO_SESSIONS", message: client.FirstName + " has no sessions remaining. Add paid sessions first." });
+  const classData = classMap_(spreadsheet).get(classId);
+  if (!classData || classData.status === "Cancelled" || classStart_(classData).getTime() <= Date.now()) return response_({ success: false, code: "CLASS_NOT_AVAILABLE", message: "This class is no longer available." });
+  const sheet = spreadsheet.getSheetByName(SHEET_NAMES.BOOKINGS); const bookings = objects_(sheet);
+  if (bookings.some(function (row) { return String(row.ClassID) === classId && String(row.ClientID) === String(client.ClientID) && active_(row); })) return response_({ success: false, code: "DUPLICATE_BOOKING", message: "This client already has a reservation for that class." });
+  const capacity = attendance === "Online" ? classData.onlineCapacity : classData.inPersonCapacity;
+  const booked = bookings.filter(function (row) { return String(row.ClassID) === classId && active_(row) && attendance_(row.AttendanceType) === attendance; }).length;
+  if (capacity < 1) return response_({ success: false, code: "ATTENDANCE_NOT_AVAILABLE", message: attendance + " attendance is not available for this class." });
+  if (booked >= capacity) return response_({ success: false, code: "CLASS_FULL", message: "The " + attendance.toLowerCase() + " spaces for this class are full." });
+  const transaction = changeBalance_(spreadsheet, client, -1, "Admin booking", classId, "Booked by studio owner"); const bookingId = Utilities.getUuid();
+  append_(sheet, HEADERS.Bookings, { BookingID: bookingId, ClassID: classId, FirstName: client.FirstName, LastName: client.LastName, Email: client.Email, Timestamp: new Date(), Status: "Active", CancelCode: "", CancelledAt: "", AttendanceType: attendance, ClientNote: note, ClientID: client.ClientID, SessionTransactionID: transaction, CancellationSource: "", EmailStatus: "" });
+  const updated = clientById_(spreadsheet, client.ClientID); const sent = bookingEmail_(updated, classData, attendance); setByKey_(sheet, "BookingID", bookingId, "EmailStatus", sent ? "Booking confirmation sent" : "Booking confirmation failed"); if (Number(updated.SessionsRemaining) === 0) zeroEmail_(updated);
+  return response_({ success: true, message: client.FirstName + " is booked and their balance is now " + updated.SessionsRemaining + "." });
 }
 
 function updateClass_(request, spreadsheet) {

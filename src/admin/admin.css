@@ -63,6 +63,16 @@ body.admin-body { margin: 0; background: var(--admin-bg); color: var(--admin-ink
 .admin-toast { position: fixed; right: 20px; bottom: 20px; max-width: 420px; z-index: 10; }
 .admin-progress { margin: -8px 0 16px; color: var(--admin-sage); font-weight: 800; }
 button:disabled { cursor: not-allowed; opacity: .55; }
+.admin-client-list { display: grid; gap: 8px; margin: 12px 0 22px; }
+.admin-client-row { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(240px, 1.4fr) minmax(170px, .9fr); gap: 24px; width: 100%; padding: 14px 16px; border: 1px solid var(--admin-line); border-radius: 8px; background: white; color: var(--admin-ink); font: inherit; font-weight: 700; text-align: left; cursor: pointer; }
+.admin-client-row:hover, .admin-client-row.active { border-color: var(--admin-sage); background: #edf7f3; }
+.admin-client-row span { overflow-wrap: anywhere; }
+.admin-client-search { max-width: 100%; }
+.admin-client-detail { padding-top: 12px; border-top: 1px solid var(--admin-line); }
+.admin-client-detail h3 { margin: 8px 0 12px; }
+.admin-client-detail h4 { margin: 24px 0 10px; }
+.admin-client-detail li { margin: 8px 0; color: var(--admin-muted); }
+.admin-client-detail li strong { color: var(--admin-ink); }
 @media (max-width: 950px) {
   .admin-header { grid-template-columns: 130px 1fr; }
   .admin-header img { width: 125px; }
@@ -80,6 +90,7 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .admin-panel { padding: 16px; }
   .admin-panel__head, .admin-class-card__title { align-items: stretch; flex-direction: column; }
   .admin-add-class, .admin-class-card__controls, .admin-template-card, .admin-booking-row { grid-template-columns: 1fr; }
+  .admin-client-row { grid-template-columns: 1fr; gap: 5px; }
   .admin-tabs button { width: 100%; }
   .admin-tabs button:last-child { margin-left: 0; }
   .admin-class-toolbar { align-items: stretch; flex-direction: column; }

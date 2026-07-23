@@ -45,6 +45,10 @@ export function updateClass(credential, classItem) {
   return adminRequest("adminUpdateClass", credential, classItem);
 }
 
+export function bulkUpdateClasses(credential, changes) {
+  return adminRequest("adminBulkUpdateClasses", credential, changes);
+}
+
 export function createClass(credential, classItem) {
   return adminRequest("adminCreateClass", credential, classItem);
 }

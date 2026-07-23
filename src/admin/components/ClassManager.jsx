@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { BulkClassEditor } from "./BulkClassEditor.jsx";
 import { ClassEditor } from "./ClassEditor.jsx";
 
-export function ClassManager({ classes, templates, isBusy, classView, selectedDate, onClassView, onDate, onCreate, onDelete, onUpdate, onCancelBooking, onCancelClass, dailyBookings = false }) {
+export function ClassManager({ classes, templates, isBusy, classView, selectedDate, onClassView, onDate, onCreate, onDelete, onUpdate, onBulkUpdate, onCancelBooking, onCancelClass, dailyBookings = false }) {
   const [newClass, setNewClass] = useState({ templateId: templates[0]?.templateId || "", date: "", inPersonCapacity: 10, onlineCapacity: 0, zoomUrl: "" });
 
   function submitNewClass(event) {
@@ -31,6 +32,8 @@ export function ClassManager({ classes, templates, isBusy, classView, selectedDa
         <label>Zoom link<input type="url" value={newClass.zoomUrl} onChange={(event) => setNewClass({ ...newClass, zoomUrl: event.target.value })} placeholder="https://zoom.us/..." /></label>
         <button className="button gold" type="submit" disabled={isBusy}>Add Class</button>
       </form>}
+
+      {!dailyBookings && <BulkClassEditor templates={templates} isBusy={isBusy} onApply={onBulkUpdate} />}
 
       <div className="admin-class-list" hidden={dailyBookings && !selectedDate}>
         {classes.length === 0 && <p className="admin-empty">No {dailyBookings ? "classes" : classView === "history" ? "past" : "upcoming"} classes match this date.</p>}

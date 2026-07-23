@@ -123,6 +123,7 @@ function adminAction_(action, request, spreadsheet) {
   if (action === "admintopupclient") return topUpClient_(request, spreadsheet);
   if (action === "adminbookforclient") return bookForClientFromAdmin_(request, spreadsheet);
   if (action === "adminupdateclass") return updateClass_(request, spreadsheet);
+  if (action === "adminbulkupdateclasses") return bulkUpdateClasses_(request, spreadsheet);
   if (action === "admincreateclass") return createClass_(request, spreadsheet);
   if (action === "admindeleteclass") return deleteClass_(request, spreadsheet);
   if (action === "admincancelclass") return cancelClass_(request, spreadsheet);
@@ -196,6 +197,36 @@ function updateClass_(request, spreadsheet) {
   return response_({ success: true, message: "Class updated." });
 }
 
+function bulkUpdateClasses_(request, spreadsheet) {
+  const start = date_(request.startDate), end = date_(request.endDate), timezone = spreadsheet.getSpreadsheetTimeZone();
+  const templateId = clean_(request.templateId, 120), changeInPerson = provided_(request.inPersonCapacity), changeOnline = provided_(request.onlineCapacity), changeZoom = request.updateZoom === true || request.updateZoom === "true";
+  const inPerson = changeInPerson ? capacity_(request.inPersonCapacity, null) : null, online = changeOnline ? capacity_(request.onlineCapacity, null) : null, zoomUrl = clean_(request.zoomUrl, 500);
+  if (!start || !end || end.getTime() < start.getTime()) return response_({ success: false, code: "VALIDATION_ERROR", message: "Choose a valid start date and end date." });
+  if (!changeInPerson && !changeOnline && !changeZoom) return response_({ success: false, code: "VALIDATION_ERROR", message: "Choose at least one value to update." });
+  if ((changeInPerson && inPerson === null) || (changeOnline && online === null) || (changeZoom && !zoomUrl)) return response_({ success: false, code: "VALIDATION_ERROR", message: "Enter valid capacities and a Zoom link when replacing it." });
+
+  const startIso = iso_(start, timezone), endIso = iso_(end, timezone), sheet = spreadsheet.getSheetByName(SHEET_NAMES.CLASSES), headers = headers_(sheet), values = sheet.getDataRange().getValues();
+  const classDataMap = classMap_(spreadsheet), bookings = objects_(spreadsheet.getSheetByName(SHEET_NAMES.BOOKINGS));
+  const selected = [];
+  for (let index = 1; index < values.length; index += 1) {
+    const classId = String(values[index][headers.ClassID - 1] || ""), classData = classDataMap.get(classId); if (!classData || classData.status === "Cancelled" || classStart_(classData).getTime() <= Date.now()) continue;
+    const dateIso = iso_(classData.date, timezone); if (dateIso < startIso || dateIso > endIso || (templateId && classData.templateId !== templateId)) continue;
+    selected.push({ index: index, classData: classData });
+  }
+  if (!selected.length) return response_({ success: true, message: "No future active classes matched that selection." });
+
+  for (let itemIndex = 0; itemIndex < selected.length; itemIndex += 1) {
+    const item = selected[itemIndex], activeBookings = bookings.filter(function (row) { return String(row.ClassID) === item.classData.classId && active_(row); });
+    const inPersonBooked = activeBookings.filter(function (row) { return attendance_(row.AttendanceType) === "In person"; }).length, onlineBooked = activeBookings.filter(function (row) { return attendance_(row.AttendanceType) === "Online"; }).length;
+    if (changeInPerson && inPerson < inPersonBooked) return response_({ success: false, code: "CAPACITY_TOO_LOW", message: item.classData.className + " on " + iso_(item.classData.date, timezone) + " already has " + inPersonBooked + " in-person booking(s)." });
+    if (changeOnline && online < onlineBooked) return response_({ success: false, code: "CAPACITY_TOO_LOW", message: item.classData.className + " on " + iso_(item.classData.date, timezone) + " already has " + onlineBooked + " online booking(s)." });
+  }
+
+  selected.forEach(function (item) { const row = values[item.index]; if (changeInPerson) { row[headers.Capacity - 1] = inPerson; row[headers.InPersonCapacity - 1] = inPerson; } if (changeOnline) row[headers.OnlineCapacity - 1] = online; if (changeZoom) row[headers.ZoomUrl - 1] = zoomUrl; });
+  sheet.getRange(2, 1, values.length - 1, values[0].length).setValues(values.slice(1));
+  return response_({ success: true, message: selected.length + " future class(es) updated." });
+}
+
 function createClass_(request, spreadsheet) {
   const templateId = clean_(request.templateId, 120); const date = date_(request.date); const template = objects_(spreadsheet.getSheetByName(SHEET_NAMES.TEMPLATES)).find(function (row) { return String(row.TemplateID) === templateId; }); const inPerson = capacity_(request.inPersonCapacity, request.capacity); const online = capacity_(request.onlineCapacity, 0);
   if (!template || !date || inPerson === null || online === null) return response_({ success: false, code: "VALIDATION_ERROR", message: "Choose a template, date, and valid capacities." });
@@ -260,6 +291,7 @@ function publicClient_(client) { return { clientId: String(client.ClientID), fir
 function publicTemplate_(row) { const inPerson = capacity_(row.InPersonCapacity, row.Capacity) || 0, online = capacity_(row.OnlineCapacity, 0) || 0; return { templateId: String(row.TemplateID), day: String(row.Day), time: String(row.Time), className: String(row.ClassName), instructor: String(row.Instructor), capacity: inPerson, inPersonCapacity: inPerson, onlineCapacity: online, zoomUrl: String(row.ZoomUrl || "") }; }
 function attendance_(value) { const normalized = String(value || "").trim().toLowerCase(); if (["in person", "in-person", "inperson"].indexOf(normalized) >= 0) return "In person"; if (normalized === "online") return "Online"; return ""; }
 function capacity_(value, fallback) { const raw = value === "" || value === undefined || value === null ? fallback : value, number = Number(raw); return Number.isInteger(number) && number >= 0 ? number : null; }
+function provided_(value) { return value !== undefined && value !== null && String(value).trim() !== ""; }
 function classStart_(classData) { const date = new Date(classData.date); const minutes = minutes_(classData.time); date.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0); return date; }
 function classText_(classData) { return Utilities.formatDate(classData.date, getSpreadsheet_().getSpreadsheetTimeZone(), "EEEE, MMMM d") + " · " + classData.time; }
 function getSpreadsheet_() { const id = PropertiesService.getScriptProperties().getProperty("SPREADSHEET_ID"); if (id) return SpreadsheetApp.openById(id); const active = SpreadsheetApp.getActiveSpreadsheet(); if (!active) throw new Error("No spreadsheet is connected. Bind this script to a Google Sheet or run setSpreadsheetId()."); return active; }

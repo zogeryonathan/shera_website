@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { bookClient, cancelClass, cancelClientBooking, createClass, createClient, createTemplate, deleteClass, generateClasses, getAdminDashboard, topUpClient, updateClass, updateClient, updateTemplate } from "../adminService.js";
+import { bookClient, bulkUpdateClasses, cancelClass, cancelClientBooking, createClass, createClient, createTemplate, deleteClass, generateClasses, getAdminDashboard, topUpClient, updateClass, updateClient, updateTemplate } from "../adminService.js";
 import { ClassManager } from "./ClassManager.jsx";
 import { ClientManager } from "./ClientManager.jsx";
 import { GoogleAdminLogin } from "./GoogleAdminLogin.jsx";
@@ -92,6 +92,7 @@ export function AdminApp() {
             dailyBookings={isDailyBookingsPage} onClassView={setClassView} onDate={setSelectedDate}
             onCreate={(item) => mutate(() => createClass(credential, item), "Class added.")}
             onUpdate={(item) => mutate(() => updateClass(credential, item), "Class updated.")}
+            onBulkUpdate={(changes) => mutate(() => bulkUpdateClasses(credential, changes), "Matching classes updated.")}
             onDelete={(classId) => { if (window.confirm("Delete this class?")) mutate(() => deleteClass(credential, classId), "Class deleted."); }}
             onCancelClass={(classId) => { if (window.confirm("Cancel this class? All booked clients will be refunded and emailed.")) mutate(() => cancelClass(credential, classId), "Class cancelled."); }}
             onCancelBooking={(bookingId) => { if (window.confirm("Cancel this client booking?")) mutate(() => cancelClientBooking(credential, bookingId), "Booking cancelled."); }} />

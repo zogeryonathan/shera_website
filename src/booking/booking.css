@@ -405,6 +405,73 @@
   grid-column: 1;
 }
 
+.booking-modal__security {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.booking-balance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(85, 123, 114, 0.3);
+  border-radius: 9px;
+  background: #eef6f3;
+  color: #355f55;
+}
+
+.booking-balance span { font-weight: 800; }
+
+.attendance-choice {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.attendance-choice legend {
+  grid-column: 1 / -1;
+  margin-bottom: 4px;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+
+.attendance-choice label {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.attendance-choice input { margin-top: 4px; }
+.attendance-choice span { display: grid; gap: 3px; font-weight: 800; }
+.attendance-choice small { color: var(--muted); font-weight: 700; }
+.attendance-choice label:has(input:disabled) { cursor: not-allowed; opacity: .55; }
+.field-optional { color: var(--muted); font-weight: 600; }
+.field textarea { min-height: 105px; resize: vertical; }
+
+.client-booking-item {
+  display: grid;
+  gap: 8px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+
+.client-booking-item span, .client-booking-item small { color: var(--muted); font-weight: 650; }
+
 .booking-modal__form .booking-status {
   margin: 0;
 }
@@ -562,6 +629,8 @@ input[aria-invalid="true"] {
   .booking-modal__actions .button {
     width: 100%;
   }
+
+  .attendance-choice { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

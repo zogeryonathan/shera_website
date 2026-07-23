@@ -1,4 +1,4 @@
-const CACHE_NAME = "shera-studio-v3";
+const CACHE_NAME = "shera-studio-v4";
 const APP_SHELL = ["/", "/index.html", "/about.html", "/classes.html", "/massages.html", "/booking.html", "/styles.css", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {

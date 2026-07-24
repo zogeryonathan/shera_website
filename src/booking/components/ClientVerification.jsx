@@ -2,7 +2,6 @@ import { useState } from "react";
 import { sendVerification, verifyCode } from "../bookingService.js";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const EMPTY_IDENTITY = Object.freeze({ firstName: "", lastName: "", email: "" });
 
 export function ClientVerification({ onVerified, onCancel, initial = {} }) {
   const [identity, setIdentity] = useState({ firstName: initial.firstName || "", lastName: initial.lastName || "", email: initial.email || "" });
@@ -14,7 +13,6 @@ export function ClientVerification({ onVerified, onCancel, initial = {} }) {
 
   const update = (event) => { setIdentity({ ...identity, [event.target.name]: event.target.value }); setError(null); };
   const valid = () => identity.firstName.trim() && identity.lastName.trim() && EMAIL.test(identity.email.trim());
-  const useDifferentDetails = () => { setIdentity(EMPTY_IDENTITY); setCode(""); setSent(false); setError(null); };
   const showError = (requestError) => setError({ code: requestError.code || "REQUEST_FAILED", message: requestError.message });
 
   async function requestCode(event) {
@@ -49,7 +47,6 @@ export function ClientVerification({ onVerified, onCancel, initial = {} }) {
         {notRegistered ? <div className="verification-registration" role="alert"><strong>New client? Please register first.</strong><p>Call Shera to create your client profile and add your class package. Once that is complete, you can return here and book online.</p><a className="button secondary" href="tel:+13439872421">Call Shera to Register</a></div> : error && <div className="booking-status booking-status--error" role="alert">{error.message}</div>}
         <div className="booking-modal__actions">
           {!notRegistered && <button className="button gold" type="submit" disabled={busy}>{busy ? "Sending your code…" : "Send My 6-Digit Code"}</button>}
-          <button className="button secondary" type="button" onClick={useDifferentDetails} disabled={busy}>Use Different Details</button>
           {onCancel && <button className="button secondary" type="button" onClick={onCancel} disabled={busy}>Close</button>}
         </div>
       </form> : <form onSubmit={confirmCode} className="booking-modal__form booking-modal__form--single">
@@ -60,7 +57,7 @@ export function ClientVerification({ onVerified, onCancel, initial = {} }) {
         </div>
         <label className="field">6-Digit Code<input value={code} onChange={(event) => { setCode(event.target.value.replace(/\D/g, "").slice(0, 6)); setError(null); }} inputMode="numeric" autoComplete="one-time-code" maxLength="6" disabled={busy} /></label>
         {error && <div className="booking-status booking-status--error" role="alert">{error.message}</div>}
-        <div className="booking-modal__actions"><button className="button gold" type="submit" disabled={busy}>{busy ? "Checking code…" : "Continue to Booking"}</button><button className="button secondary" type="button" onClick={() => { setSent(false); setCode(""); setError(null); }} disabled={busy}>Change Details</button>{onCancel && <button className="button secondary" type="button" onClick={onCancel} disabled={busy}>Close</button>}</div>
+        <div className="booking-modal__actions"><button className="button gold" type="submit" disabled={busy}>{busy ? "Checking code…" : "Continue to Booking"}</button>{onCancel && <button className="button secondary" type="button" onClick={onCancel} disabled={busy}>Close</button>}</div>
       </form>}
     </div>
   );

@@ -413,6 +413,32 @@
   line-height: 1.55;
 }
 
+.verification-intro {
+  display: grid;
+  gap: 8px;
+  padding: 17px;
+  border: 1px solid rgba(85, 123, 114, 0.28);
+  border-radius: 9px;
+  background: #eef6f3;
+}
+
+.verification-intro .eyebrow { margin: 0; }
+.verification-intro h3 { font-size: 1.25rem; }
+.verification-intro p { margin: 0; color: var(--muted); font-size: 0.9rem; line-height: 1.55; }
+
+.verification-registration {
+  display: grid;
+  gap: 9px;
+  padding: 17px;
+  border: 1px solid rgba(160, 71, 67, 0.3);
+  border-radius: 9px;
+  background: #fff1f0;
+  color: #8a3b38;
+}
+
+.verification-registration p { margin: 0; font-weight: 650; line-height: 1.55; }
+.verification-registration .button { width: fit-content; border-color: #8a3b38; color: #8a3b38; }
+
 .booking-balance {
   display: flex;
   flex-wrap: wrap;

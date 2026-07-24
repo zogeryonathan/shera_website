@@ -50,7 +50,7 @@ export function BookingModal({ classItem, clientSession, onVerified, onCancel, o
         </div>
 
         {!clientSession ? (
-          <ClientVerification onVerified={onVerified} />
+          <ClientVerification onVerified={onVerified} onCancel={onCancel} />
         ) : (
           <form className="booking-modal__form booking-modal__form--single" onSubmit={handleSubmit}>
             <div className="booking-balance" role="status">

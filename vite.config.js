@@ -16,6 +16,7 @@ export default defineConfig({
         about: resolve(import.meta.dirname, "about.html"),
         classes: resolve(import.meta.dirname, "classes.html"),
         massages: resolve(import.meta.dirname, "massages.html"),
+        reviews: resolve(import.meta.dirname, "reviews.html"),
         pricing: resolve(import.meta.dirname, "pricing.html"),
         booking: resolve(import.meta.dirname, "booking.html"),
         admin: resolve(import.meta.dirname, "admin.html"),

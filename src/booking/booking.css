@@ -546,14 +546,22 @@ input[aria-invalid="true"] {
 
 @media (max-width: 699px) {
   body .nav-links {
-    justify-content: center;
+    justify-content: flex-start;
     gap: 0;
-    overflow: visible;
+    overflow-x: auto;
   }
 
   body .nav-links a {
     padding: 8px 7px;
     font-size: 0.78rem;
+  }
+
+  body .nav-links a[href="booking.html"] {
+    order: -1;
+    border: 1px solid var(--gold);
+    background: var(--gold);
+    color: var(--white);
+    font-weight: 900;
   }
 
   .booking-hero {

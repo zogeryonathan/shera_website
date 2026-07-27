@@ -537,6 +537,29 @@ textarea {
   }
 }
 
+/* Keep the primary booking action visible without scrolling on phone-sized screens. */
+@media (max-width: 699px) {
+  .nav-links {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-links::-webkit-scrollbar { display: none; }
+
+  .nav-links a { white-space: nowrap; }
+
+  .nav-links a[href="booking.html"] {
+    order: -1;
+    border: 1px solid var(--gold);
+    background: var(--gold);
+    color: var(--white);
+    font-weight: 900;
+  }
+}
+
 /* Classes and massage service pages */
 .service-page { padding: 72px 22px 112px; }
 .service-feature { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr); align-items: center; gap: clamp(48px, 7vw, 112px); }

@@ -30,6 +30,7 @@ export async function getClasses() {
   return (await request(url.toString(), "GET")).classes || [];
 }
 export function sendVerification(identity) { return request({ action: "sendVerification", ...identity }); }
+export function registerClient(identity) { return request({ action: "registerClient", ...identity }); }
 export function verifyCode(identity, code) { return request({ action: "verifyCode", ...identity, code }); }
 export async function submitBooking({ classId, attendanceType, clientNote, clientToken }) { return (await request({ action: "book", classId, attendanceType, clientNote, clientToken })).booking; }
 export function getClientBookings(clientToken) { return request({ action: "clientBookings", clientToken }); }

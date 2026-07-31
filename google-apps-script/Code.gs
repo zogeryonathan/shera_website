@@ -25,6 +25,7 @@ function doPost(event) {
     const request = requestBody_(event); const action = clean_(request.action, 50).toLowerCase();
     const spreadsheet = getSpreadsheet_(); ensureSchema_(spreadsheet);
     if (action.indexOf("admin") === 0) return adminAction_(action, request, spreadsheet);
+    if (action === "registerclient") return registerClient_(request, spreadsheet);
     if (action === "sendverification") return sendVerification_(request, spreadsheet);
     if (action === "verifycode") return verifyCode_(request, spreadsheet);
     if (action === "clientbookings") return clientBookings_(request, spreadsheet);
@@ -153,6 +154,33 @@ function createClient_(request, spreadsheet) {
   const clientId = Utilities.getUuid(); const now = new Date(); append_(spreadsheet.getSheetByName(SHEET_NAMES.CLIENTS), HEADERS.Clients, { ClientID: clientId, FirstName: identity.value.firstName, LastName: identity.value.lastName, Email: identity.value.email, SessionsPurchased: sessions, SessionsRemaining: sessions, CreatedAt: now, UpdatedAt: now });
   if (sessions > 0) history_(spreadsheet, clientId, "Top-up", sessions, sessions, "", "Initial client sessions");
   return response_({ success: true, message: "Client profile created." });
+}
+
+/** Public, zero-session signup used only by the unlisted welcome page. */
+function registerClient_(request, spreadsheet) {
+  const identity = identity_(request);
+  if (!identity.ok) return response_(identity.error);
+  if (clean_(request.website, 200)) {
+    return response_({ success: false, code: "REGISTRATION_NOT_ACCEPTED", message: "We could not complete your registration. Please contact Shera for help." });
+  }
+  if (clientByEmail_(spreadsheet, identity.value.email)) {
+    return response_({ success: false, code: "CLIENT_EXISTS", message: "A profile with this email already exists. Please contact Shera if you need help with your account." });
+  }
+
+  const clientId = Utilities.getUuid();
+  const now = new Date();
+  append_(spreadsheet.getSheetByName(SHEET_NAMES.CLIENTS), HEADERS.Clients, {
+    ClientID: clientId,
+    FirstName: identity.value.firstName,
+    LastName: identity.value.lastName,
+    Email: identity.value.email,
+    SessionsPurchased: 0,
+    SessionsRemaining: 0,
+    CreatedAt: now,
+    UpdatedAt: now,
+  });
+  history_(spreadsheet, clientId, "Registration", 0, 0, "", "Client self-registration");
+  return response_({ success: true, message: "Your client profile is ready. Shera will help you choose a class package before you book." });
 }
 
 function updateClient_(request, spreadsheet) {

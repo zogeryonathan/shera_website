@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { bookClient, bulkUpdateClasses, cancelClass, cancelClientBooking, createClass, createClient, createTemplate, deleteClass, generateClasses, getAdminDashboard, topUpClient, updateClass, updateClient, updateTemplate } from "../adminService.js";
+import { bookClient, bulkUpdateClasses, cancelClass, cancelClientBooking, createClass, createClient, createTemplate, deleteClass, deleteClient, generateClasses, getAdminDashboard, topUpClient, updateClass, updateClient, updateTemplate } from "../adminService.js";
 import { ClassManager } from "./ClassManager.jsx";
 import { ClientManager } from "./ClientManager.jsx";
 import { GoogleAdminLogin } from "./GoogleAdminLogin.jsx";
@@ -100,6 +100,7 @@ export function AdminApp() {
           <ClientManager clients={dashboard.clients || []} history={dashboard.sessionHistory || []} classes={dashboard.classes || []} isBusy={isBusy}
             onCreate={(client) => mutate(() => createClient(credential, client), "Client profile created.")}
             onUpdate={(client) => mutate(() => updateClient(credential, client), "Client details updated.")}
+            onDelete={(clientId) => { if (window.confirm("Delete this client profile? This cannot be undone. Clients with active bookings must be cancelled first.")) mutate(() => deleteClient(credential, clientId), "Client deleted."); }}
             onTopUp={(clientId, sessions) => mutate(() => topUpClient(credential, clientId, sessions), "Sessions added.")}
             onBook={(booking) => mutate(() => bookClient(credential, booking), "Client booked.")} />
         ) : (

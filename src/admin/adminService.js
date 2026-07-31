@@ -75,6 +75,7 @@ export function generateClasses(credential) {
 
 export function createClient(credential, client) { return adminRequest("adminCreateClient", credential, client); }
 export function updateClient(credential, client) { return adminRequest("adminUpdateClient", credential, client); }
+export function deleteClient(credential, clientId) { return adminRequest("adminDeleteClient", credential, { clientId }); }
 export function topUpClient(credential, clientId, sessions, note = "") { return adminRequest("adminTopUpClient", credential, { clientId, sessions, note }); }
 export function bookClient(credential, booking) { return adminRequest("adminBookForClient", credential, booking); }
 export function cancelClass(credential, classId) { return adminRequest("adminCancelClass", credential, { classId }); }

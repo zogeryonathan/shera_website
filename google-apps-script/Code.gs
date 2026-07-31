@@ -121,6 +121,7 @@ function adminAction_(action, request, spreadsheet) {
   if (action === "admindashboard") return response_({ success: true, dashboard: adminDashboard_(spreadsheet) });
   if (action === "admincreateclient") return createClient_(request, spreadsheet);
   if (action === "adminupdateclient") return updateClient_(request, spreadsheet);
+  if (action === "admindeleteclient") return deleteClient_(request, spreadsheet);
   if (action === "admintopupclient") return topUpClient_(request, spreadsheet);
   if (action === "adminbookforclient") return bookForClientFromAdmin_(request, spreadsheet);
   if (action === "adminupdateclass") return updateClass_(request, spreadsheet);
@@ -189,6 +190,23 @@ function updateClient_(request, spreadsheet) {
   if (other && String(other.ClientID) !== clientId) return response_({ success: false, code: "CLIENT_EXISTS", message: "Another client already uses this email." });
   setValues_(spreadsheet.getSheetByName(SHEET_NAMES.CLIENTS), findRow_(spreadsheet.getSheetByName(SHEET_NAMES.CLIENTS), "ClientID", clientId), { FirstName: identity.value.firstName, LastName: identity.value.lastName, Email: identity.value.email, UpdatedAt: new Date() });
   return response_({ success: true, message: "Client details updated." });
+}
+
+function deleteClient_(request, spreadsheet) {
+  const clientId = clean_(request.clientId, 120);
+  const client = clientById_(spreadsheet, clientId);
+  if (!client) return response_({ success: false, code: "CLIENT_NOT_FOUND", message: "Client not found." });
+  const hasActiveBookings = objects_(spreadsheet.getSheetByName(SHEET_NAMES.BOOKINGS)).some(function (booking) {
+    return String(booking.ClientID) === clientId && active_(booking);
+  });
+  if (hasActiveBookings) return response_({ success: false, code: "CLIENT_HAS_BOOKINGS", message: "This client has an active booking. Cancel the booking first so the space and session are handled correctly." });
+
+  const clientSheet = spreadsheet.getSheetByName(SHEET_NAMES.CLIENTS);
+  const row = findRow_(clientSheet, "ClientID", clientId);
+  if (!row) return response_({ success: false, code: "CLIENT_NOT_FOUND", message: "Client not found." });
+  clientSheet.deleteRow(row);
+  deleteMatchingRows_(spreadsheet.getSheetByName(SHEET_NAMES.VERIFICATION), "ClientID", clientId);
+  return response_({ success: true, message: client.FirstName + " " + client.LastName + " was deleted. Past booking and session records are retained for studio history." });
 }
 
 function topUpClient_(request, spreadsheet) {
@@ -326,6 +344,7 @@ function getSpreadsheet_() { const id = PropertiesService.getScriptProperties().
 function objects_(sheet) { const lastRow = sheet.getLastRow(), lastColumn = sheet.getLastColumn(); if (lastRow < 2 || lastColumn < 1) return []; const values = sheet.getRange(1, 1, lastRow, lastColumn).getValues(), headers = values.shift().map(function (header) { return String(header).trim(); }); return values.filter(function (row) { return row.some(function (cell) { return cell !== ""; }); }).map(function (row) { return headers.reduce(function (object, header, index) { object[header] = row[index]; return object; }, {}); }); }
 function headers_(sheet) { return sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].reduce(function (result, header, index) { result[String(header).trim()] = index + 1; return result; }, {}); }
 function findRow_(sheet, header, value) { const index = headers_(sheet)[header]; if (!index || sheet.getLastRow() < 2) return 0; const values = sheet.getRange(2, index, sheet.getLastRow() - 1, 1).getValues(), found = values.findIndex(function (row) { return String(row[0]) === String(value); }); return found < 0 ? 0 : found + 2; }
+function deleteMatchingRows_(sheet, header, value) { const index = headers_(sheet)[header]; if (!index || sheet.getLastRow() < 2) return; for (let row = sheet.getLastRow(); row >= 2; row -= 1) { if (String(sheet.getRange(row, index).getValue()) === String(value)) sheet.deleteRow(row); } }
 function setByKey_(sheet, keyHeader, key, targetHeader, value) { const row = findRow_(sheet, keyHeader, key), column = headers_(sheet)[targetHeader]; if (!row || !column) throw new Error("Sheet row or column not found."); sheet.getRange(row, column).setValue(value); }
 function setValues_(sheet, row, values) { const map = headers_(sheet); Object.keys(values).forEach(function (header) { if (map[header]) sheet.getRange(row, map[header]).setValue(values[header]); }); }
 function row_(headers, object) { return headers.map(function (header) { return safe_(object[header] === undefined ? "" : object[header]); }); }

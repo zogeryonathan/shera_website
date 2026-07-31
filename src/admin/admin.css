@@ -82,6 +82,9 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .admin-client-detail h4 { margin: 24px 0 10px; }
 .admin-client-detail li { margin: 8px 0; color: var(--admin-muted); }
 .admin-client-detail li strong { color: var(--admin-ink); }
+.admin-client-delete { margin-top: 24px; padding: 18px; border: 1px solid #ecd3d0; border-radius: 9px; background: #fff7f6; }
+.admin-client-delete h4 { margin-top: 0; color: #803a36; }
+.admin-client-delete p { margin: 0 0 14px; color: #765c59; font-size: .9rem; }
 @media (max-width: 950px) {
   .admin-header { grid-template-columns: 130px 1fr; }
   .admin-header img { width: 125px; }

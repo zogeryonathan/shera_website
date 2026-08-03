@@ -620,6 +620,7 @@ textarea {
 .reviews-page__grid .review-card--featured { min-height: 520px; }
 .reviews-page__grid .review-card__photo { height: 290px; }
 .reviews-page__grid .review-card--featured:nth-child(2) .review-card__photo img { object-position: center 42%; }
+.review-card--fares .review-card__photo img { object-position: center 24%; }
 .reviews-page__note { max-width: 700px; margin: 52px auto 0; padding: 32px; border: 1px solid rgba(71, 121, 90, .24); border-radius: 14px; background: #edf5f2; text-align: center; }
 .reviews-page__note h2 { font-size: clamp(1.8rem, 3vw, 2.8rem); }
 .reviews-page__note p { color: #48645c; }

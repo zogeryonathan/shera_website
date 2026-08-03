@@ -2,12 +2,17 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { BookingApiError, getClasses } from "../bookingService.js";
 import { clearLatestBooking, getLatestBooking, saveLatestBooking } from "../bookingStorage.js";
 import { BookingModal } from "./BookingModal.jsx";
+import { ClassCalendar } from "./ClassCalendar.jsx";
 import { ClassCard } from "./ClassCard.jsx";
 import { ManageBookingModal } from "./ManageBookingModal.jsx";
 import { StatusMessage } from "./StatusMessage.jsx";
 
 const DAY_ORDER = Object.freeze(["Monday", "Tuesday", "Wednesday", "Friday", "Saturday"]);
 const AUTO_REFRESH_MS = 30000;
+
+function toLocalDate(isoDate) {
+  return new Date(`${isoDate}T12:00:00`);
+}
 
 function groupClassesByDate(classes) {
   const groups = new Map();
@@ -28,6 +33,7 @@ export function BookingPage() {
   const [confirmation, setConfirmation] = useState(null);
   const [status, setStatus] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
+  const [visibleMonth, setVisibleMonth] = useState(null);
   const [clientSession, setClientSession] = useState(() => {
     try {
       const stored = JSON.parse(window.sessionStorage.getItem("shera-client-session") || "null");
@@ -35,7 +41,7 @@ export function BookingPage() {
     } catch { return null; }
   });
 
-  const availableDates = useMemo(() => [...new Set(classes.map((classItem) => classItem.dateIso))], [classes]);
+  const availableDates = useMemo(() => [...new Set(classes.map((classItem) => classItem.dateIso))].sort(), [classes]);
   const filteredClasses = useMemo(() => (
     !selectedDate ? classes : classes.filter((classItem) => classItem.dateIso === selectedDate)
   ), [classes, selectedDate]);
@@ -63,6 +69,14 @@ export function BookingPage() {
   useEffect(() => {
     loadUpcomingClasses();
   }, [loadUpcomingClasses]);
+
+  useEffect(() => {
+    if (!availableDates.length) return;
+    if (!selectedDate || !availableDates.includes(selectedDate)) {
+      setSelectedDate(availableDates[0]);
+      setVisibleMonth(new Date(toLocalDate(availableDates[0]).getFullYear(), toLocalDate(availableDates[0]).getMonth(), 1));
+    }
+  }, [availableDates, selectedDate]);
 
   useEffect(() => {
     const refreshInBackground = () => {
@@ -175,13 +189,13 @@ export function BookingPage() {
           )}
 
           {!isLoading && !loadError && availableDates.length > 0 && (
-            <div className="calendar-filter">
-              <div><p className="eyebrow">Calendar</p><strong>Choose the exact date you want to attend.</strong></div>
-              <label>Class date
-                <input type="date" min={availableDates[0]} max={availableDates[availableDates.length - 1]} value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} />
-              </label>
-              {selectedDate && <button className="button secondary" type="button" onClick={() => setSelectedDate("")}>Show All Dates</button>}
-            </div>
+            <ClassCalendar
+              availableDates={availableDates}
+              selectedDate={selectedDate}
+              visibleMonth={visibleMonth}
+              onMonthChange={setVisibleMonth}
+              onSelectDate={(date) => { setSelectedDate(date); setStatus(null); setConfirmation(null); }}
+            />
           )}
 
           {isLoading && (
@@ -215,7 +229,7 @@ export function BookingPage() {
           )}
 
           {!isLoading && !loadError && classGroups.length > 0 && (
-            <div className="schedule-grid">
+            <div className="schedule-grid" aria-live="polite">
               {classGroups.map(({ dateIso, items }, dayIndex) => (
                 <section className={`schedule-day schedule-day--${dayIndex + 1}`} key={dateIso} aria-labelledby={`date-${dateIso}`}>
                   <h3 className="schedule-day__title" id={`date-${dateIso}`}>{items[0].day} <span>{items[0].date}</span></h3>

@@ -69,9 +69,11 @@ export function createTemplate(credential, template) {
   return adminRequest("adminCreateTemplate", credential, template);
 }
 
-export function generateClasses(credential) {
-  return adminRequest("adminGenerateClasses", credential);
-}
+export function generateClasses(credential, options) { return adminRequest("adminGenerateClasses", credential, options); }
+export function duplicateWeek(credential, options) { return adminRequest("adminDuplicateWeek", credential, options); }
+export function createManyClasses(credential, options) { return adminRequest("adminCreateManyClasses", credential, options); }
+export function bulkRemoveClasses(credential, options) { return adminRequest("adminBulkRemoveClasses", credential, options); }
+export function deleteTemplate(credential, templateId) { return adminRequest("adminDeleteTemplate", credential, { templateId }); }
 
 export function createClient(credential, client) { return adminRequest("adminCreateClient", credential, client); }
 export function updateClient(credential, client) { return adminRequest("adminUpdateClient", credential, client); }

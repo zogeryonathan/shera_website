@@ -65,6 +65,22 @@ body.admin-body { margin: 0; background: var(--admin-bg); color: var(--admin-ink
 .admin-booking-row small { color: var(--admin-muted); overflow-wrap: anywhere; }
 .admin-cancelled { color: var(--admin-muted); font-size: .8rem; font-weight: 800; text-align: right; }
 .admin-template-card { grid-template-columns: 1.5fr .8fr 1.1fr 1fr .7fr auto; padding: 18px; border: 1px solid var(--admin-line); border-radius: 12px; background: #fbf8f2; }
+.admin-add-choice { display: flex; gap: 8px; margin: 0 0 10px; }
+.admin-add-choice button { padding: 9px 13px; border: 1px solid var(--admin-line); border-radius: 8px; background: white; color: var(--admin-muted); font: inherit; font-weight: 800; cursor: pointer; }
+.admin-add-choice button.active { background: var(--admin-sage); border-color: var(--admin-sage); color: white; }
+.admin-add-class--wide, .admin-class-card__controls { grid-template-columns: repeat(4, minmax(130px, 1fr)); }
+.admin-workspace { margin-top: 24px; padding: 22px; border: 1px solid var(--admin-line); border-radius: 12px; background: #fbf8f2; }
+.admin-workspace > h3 { margin: 0; font-size: 1.45rem; }
+.admin-workspace > p { margin: 6px 0 18px; color: var(--admin-muted); }
+.admin-workspace--danger { border-color: #ecd3d0; background: #fff7f6; }
+.admin-rule { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end; }
+.admin-range-form { display: grid; grid-template-columns: repeat(3, minmax(150px, 1fr)); gap: 14px; align-items: end; }
+.admin-range-form--many { grid-template-columns: repeat(4, minmax(150px, 1fr)); }
+.admin-range-form fieldset { display: flex; flex-wrap: wrap; grid-column: 1 / -1; gap: 10px 16px; margin: 0; padding: 13px; border: 1px solid var(--admin-line); border-radius: 8px; }
+.admin-range-form legend { padding: 0 5px; color: var(--admin-muted); font-size: .73rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; }
+.admin-range-form legend small { font-weight: 500; letter-spacing: 0; text-transform: none; }
+.admin-check { display: flex !important; align-items: center; gap: 7px; color: var(--admin-ink) !important; font-size: .82rem !important; letter-spacing: 0 !important; text-transform: none !important; }
+.admin-check input { width: auto !important; min-height: auto !important; }
 .admin-alert, .admin-toast { padding: 14px 16px; border: 1px solid; border-radius: 9px; font-weight: 700; }
 .admin-alert { margin: 0 0 20px; }
 .admin-alert--success { border-color: #a9c7be; background: #edf7f3; color: #355f55; }
@@ -90,6 +106,8 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .admin-header img { width: 125px; }
   .admin-header .button { grid-column: 2; justify-self: start; }
   .admin-add-class, .admin-class-card__controls, .admin-template-card { grid-template-columns: repeat(2, 1fr); }
+  .admin-add-class--wide, .admin-range-form, .admin-range-form--many { grid-template-columns: repeat(2, 1fr); }
+  .admin-rule { grid-template-columns: 1fr; }
   .admin-bulk-editor { grid-template-columns: repeat(2, 1fr); }
   .admin-bulk-editor__head { grid-column: 1 / -1; }
   .admin-booking-row { grid-template-columns: 1fr auto; }
@@ -104,6 +122,7 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .admin-panel { padding: 16px; }
   .admin-panel__head, .admin-class-card__title { align-items: stretch; flex-direction: column; }
   .admin-add-class, .admin-class-card__controls, .admin-template-card, .admin-booking-row { grid-template-columns: 1fr; }
+  .admin-add-class--wide, .admin-range-form, .admin-range-form--many { grid-template-columns: 1fr; }
   .admin-bulk-editor { grid-template-columns: 1fr; }
   .admin-bulk-editor__head { align-items: stretch; flex-direction: column; }
   .admin-client-row { grid-template-columns: 1fr; gap: 5px; }

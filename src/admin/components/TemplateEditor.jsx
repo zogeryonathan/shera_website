@@ -14,7 +14,7 @@ export function TemplateEditor({ template, isBusy, onUpdate }) {
       <label>In-person capacity<input name="inPersonCapacity" type="number" min="0" value={form.inPersonCapacity ?? form.capacity} onChange={change} required /></label>
       <label>Online capacity<input name="onlineCapacity" type="number" min="0" value={form.onlineCapacity ?? 0} onChange={change} required /></label>
       <label>Zoom link<input name="zoomUrl" type="url" value={form.zoomUrl ?? ""} onChange={change} placeholder="https://zoom.us/..." /></label>
-      <button className="button secondary" type="submit" disabled={isBusy}>Save Template</button>
+      <button className="button secondary" type="submit" disabled={isBusy}>Save Rule</button>
     </form>
   );
 }

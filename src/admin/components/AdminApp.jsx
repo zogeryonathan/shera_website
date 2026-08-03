@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { bookClient, bulkUpdateClasses, cancelClass, cancelClientBooking, createClass, createClient, createTemplate, deleteClass, deleteClient, generateClasses, getAdminDashboard, topUpClient, updateClass, updateClient, updateTemplate } from "../adminService.js";
+import { bookClient, bulkRemoveClasses, bulkUpdateClasses, cancelClass, cancelClientBooking, createClass, createClient, createManyClasses, createTemplate, deleteClass, deleteClient, deleteTemplate, duplicateWeek, generateClasses, getAdminDashboard, topUpClient, updateClass, updateClient, updateTemplate } from "../adminService.js";
 import { ClassManager } from "./ClassManager.jsx";
 import { ClientManager } from "./ClientManager.jsx";
 import { GoogleAdminLogin } from "./GoogleAdminLogin.jsx";
@@ -82,7 +82,7 @@ export function AdminApp() {
         {status && <div className={`admin-alert admin-alert--${status.type}`} role="status">{status.message}</div>}
         {!isDailyBookingsPage && <nav className="admin-tabs" aria-label="Dashboard sections">
           <button type="button" className={activeView === "classes" ? "active" : ""} onClick={() => setActiveView("classes")}>Classes & Bookings</button>
-          <button type="button" className={activeView === "schedule" ? "active" : ""} onClick={() => setActiveView("schedule")}>Weekly Schedule</button>
+          <button type="button" className={activeView === "schedule" ? "active" : ""} onClick={() => setActiveView("schedule")}>Schedule & Future Classes</button>
           <button type="button" className={activeView === "clients" ? "active" : ""} onClick={() => setActiveView("clients")}>Clients & Sessions</button>
           <button type="button" onClick={() => loadDashboard(credential)} disabled={isBusy}>Refresh</button>
         </nav>}
@@ -106,8 +106,12 @@ export function AdminApp() {
         ) : (
           <ScheduleManager templates={dashboard.templates} isBusy={isBusy}
             onUpdate={(item) => mutate(() => updateTemplate(credential, item), "Weekly schedule updated.")}
-            onCreate={(item) => mutate(() => createTemplate(credential, item), "Weekly class added. Generate future dates when you are ready.")}
-            onGenerate={() => mutate(() => generateClasses(credential), "Missing classes generated.")} />
+            onCreate={(item) => mutate(() => createTemplate(credential, item), "Weekly schedule rule added.")}
+            onDelete={(templateId) => { if (window.confirm("Delete this weekly schedule rule? Future classes must be removed first.")) mutate(() => deleteTemplate(credential, templateId), "Schedule rule deleted."); }}
+            onGenerate={(options) => mutate(() => generateClasses(credential, options), "Missing future classes created.")}
+            onDuplicate={(options) => mutate(() => duplicateWeek(credential, options), "Future weeks duplicated.")}
+            onCreateMany={(options) => mutate(() => createManyClasses(credential, options), "Class dates created.")}
+            onBulkRemove={(options) => { if (window.confirm("Empty classes will be deleted. Classes with bookings will be cancelled, refunded, and clients will be emailed.")) mutate(() => bulkRemoveClasses(credential, options), "Classes removed."); }} />
         )}
       </main>
     </div>

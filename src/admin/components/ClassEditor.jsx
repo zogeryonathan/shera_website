@@ -2,6 +2,9 @@ import { useState } from "react";
 
 export function ClassEditor({ classItem, isBusy, onUpdate, onDelete, onCancelBooking, onCancelClass, dailyBookings = false }) {
   const [date, setDate] = useState(classItem.date);
+  const [className, setClassName] = useState(classItem.className);
+  const [time, setTime] = useState(classItem.time);
+  const [instructor, setInstructor] = useState(classItem.instructor);
   const [inPersonCapacity, setInPersonCapacity] = useState(classItem.inPersonCapacity ?? classItem.capacity);
   const [onlineCapacity, setOnlineCapacity] = useState(classItem.onlineCapacity ?? 0);
   const [zoomUrl, setZoomUrl] = useState(classItem.zoomUrl ?? "");
@@ -15,11 +18,14 @@ export function ClassEditor({ classItem, isBusy, onUpdate, onDelete, onCancelBoo
         <strong>{classItem.inPersonBooked}/{classItem.inPersonCapacity} in person · {classItem.onlineBooked}/{classItem.onlineCapacity} online</strong>
       </div>
       <div className="admin-class-card__controls">
+        <label>Class name<input value={className} onChange={(event) => setClassName(event.target.value)} /></label>
         <label>Date<input type="date" value={date} onChange={(event) => setDate(event.target.value)} /></label>
+        <label>Time<input value={time} onChange={(event) => setTime(event.target.value)} /></label>
+        <label>Instructor<input value={instructor} onChange={(event) => setInstructor(event.target.value)} /></label>
         <label>In-person capacity<input type="number" min={classItem.inPersonBooked || 0} value={inPersonCapacity} onChange={(event) => setInPersonCapacity(event.target.value)} /></label>
         <label>Online capacity<input type="number" min={classItem.onlineBooked || 0} value={onlineCapacity} onChange={(event) => setOnlineCapacity(event.target.value)} /></label>
         <label>Zoom link<input type="url" value={zoomUrl} onChange={(event) => setZoomUrl(event.target.value)} placeholder="https://zoom.us/..." /></label>
-        <button className="button secondary" type="button" disabled={isBusy} onClick={() => onUpdate({ classId: classItem.classId, date, inPersonCapacity, onlineCapacity, zoomUrl, className: classItem.className, time: classItem.time, instructor: classItem.instructor })}>Save Changes</button>
+        <button className="button secondary" type="button" disabled={isBusy} onClick={() => onUpdate({ classId: classItem.classId, date, inPersonCapacity, onlineCapacity, zoomUrl, className, time, instructor })}>Save Changes</button>
         {classItem.status !== "Cancelled" && <button className="admin-danger" type="button" disabled={isBusy} onClick={() => onCancelClass(classItem.classId)}>Cancel Class</button>}
         <button className="admin-danger" type="button" disabled={isBusy || activeBookings.length > 0} onClick={() => onDelete(classItem.classId)}>Delete Class</button>
       </div>

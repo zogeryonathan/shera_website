@@ -215,7 +215,7 @@ export function BookingPage() {
                     Try Again
                   </button>
                 )}
-                <a className="button secondary" href="tel:+13439872421">Call (343) 987-2421</a>
+                <a className="button secondary" href="contact.html?topic=booking">Message Shera</a>
               </div>
             </div>
           )}
@@ -223,8 +223,8 @@ export function BookingPage() {
           {!isLoading && !loadError && classes.length === 0 && (
             <div className="booking-empty" role="status">
               <h3>No upcoming classes are listed yet.</h3>
-              <p>Please check back soon or call the studio for the latest availability.</p>
-              <a className="button secondary" href="tel:+13439872421">Call (343) 987-2421</a>
+              <p>Please check back soon or message Shera for the latest availability.</p>
+              <a className="button secondary" href="contact.html?topic=booking">Message Shera</a>
             </div>
           )}
 

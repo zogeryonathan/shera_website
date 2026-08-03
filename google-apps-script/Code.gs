@@ -26,6 +26,7 @@ function doPost(event) {
     const spreadsheet = getSpreadsheet_(); ensureSchema_(spreadsheet);
     if (action.indexOf("admin") === 0) return adminAction_(action, request, spreadsheet);
     if (action === "registerclient") return registerClient_(request, spreadsheet);
+    if (action === "submitinquiry") return submitInquiry_(request, spreadsheet);
     if (action === "sendverification") return sendVerification_(request, spreadsheet);
     if (action === "verifycode") return verifyCode_(request, spreadsheet);
     if (action === "clientbookings") return clientBookings_(request, spreadsheet);
@@ -39,6 +40,17 @@ function doPost(event) {
 /** Run once after replacing the old Code.gs. It preserves existing data. */
 function upgradeSecureBookingSystem() { const spreadsheet = getSpreadsheet_(); ensureSchema_(spreadsheet); styleHeaders_(spreadsheet); return "Secure booking sheets are ready."; }
 function setupBookingSheets() { upgradeSecureBookingSystem(); }
+
+function submitInquiry_(request, spreadsheet) {
+  const identity = identity_(request); const phone = clean_(request.phone, 40); const message = clean_(request.message, 2000); const page = clean_(request.page, 100) || "website";
+  if (clean_(request.website, 200)) return response_({ success: true, message: "Thank you for your inquiry." });
+  if (!identity.ok || !phone || message.length < 3) return response_({ success: false, code: "VALIDATION_ERROR", message: "Please enter your name, email, phone number, and a short message." });
+  const submittedAt = Utilities.formatDate(new Date(), spreadsheet.getSpreadsheetTimeZone(), "EEEE, MMMM d, yyyy h:mm a");
+  const html = "<p>You have a new website inquiry.</p><p><strong>Name:</strong> " + escape_(identity.value.firstName + " " + identity.value.lastName) + "<br><strong>Email:</strong> <a href=\"mailto:" + escape_(identity.value.email) + "\">" + escape_(identity.value.email) + "</a><br><strong>Phone:</strong> " + escape_(phone) + "<br><strong>Page:</strong> " + escape_(page) + "<br><strong>Sent:</strong> " + escape_(submittedAt) + "</p><p><strong>Message:</strong><br>" + escape_(message).replace(/\n/g, "<br>") + "</p>";
+  try { MailApp.sendEmail({ to: "sheraclasses@gmail.com", replyTo: identity.value.email, subject: "New Shera Studio inquiry — " + identity.value.firstName + " " + identity.value.lastName, htmlBody: html, body: "New website inquiry\n\nName: " + identity.value.firstName + " " + identity.value.lastName + "\nEmail: " + identity.value.email + "\nPhone: " + phone + "\nPage: " + page + "\nSent: " + submittedAt + "\n\nMessage:\n" + message, name: "Shera Studio" }); }
+  catch (error) { console.error(error); return response_({ success: false, code: "EMAIL_FAILED", message: "We could not send your inquiry right now. Please try WhatsApp or text message." }); }
+  return response_({ success: true, message: "Thank you — Shera will reply as soon as she can." });
+}
 
 function sendVerification_(request, spreadsheet) {
   const identity = identity_(request); if (!identity.ok) return response_(identity.error);

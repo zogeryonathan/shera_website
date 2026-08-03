@@ -27,7 +27,7 @@ if (form && status) {
       form.reset();
       showStatus(result.message, "success");
     } catch (error) {
-      const message = error instanceof BookingApiError ? error.message : "We could not create your profile. Please try again or call Shera.";
+      const message = error instanceof BookingApiError ? error.message : "We could not create your profile. Please try again or message Shera.";
       showStatus(message, "error");
     } finally {
       button.disabled = false;

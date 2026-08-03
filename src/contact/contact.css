@@ -1,0 +1,25 @@
+.contact-hero { padding: 84px 22px 68px; border-bottom: 1px solid var(--line); background: var(--soft); text-align: center; }
+.contact-hero .wrap { max-width: 800px; }
+.contact-hero .lede { margin-inline: auto; }
+.contact-section { padding-top: 72px; padding-bottom: 96px; }
+.contact-layout { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 36px; align-items: start; }
+.contact-options { display: grid; gap: 16px; }
+.contact-options h2, .contact-form h2 { font-size: clamp(2rem, 4vw, 3.2rem); }
+.contact-method { display: grid; gap: 5px; padding: 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); color: var(--ink); text-decoration: none; transition: transform .18s ease, box-shadow .18s ease; }
+.contact-method:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(70, 51, 34, .09); }
+.contact-method strong { font-size: 1.04rem; }
+.contact-method span { color: var(--muted); font-size: .9rem; font-weight: 650; line-height: 1.5; }
+.contact-method--whatsapp { border-color: rgba(85, 123, 114, .42); background: #edf5f2; }
+.contact-form { display: grid; gap: 16px; padding: 30px; border: 1px solid var(--line); border-radius: 14px; background: var(--white); box-shadow: 0 16px 40px rgba(70, 51, 34, .06); }
+.contact-form .eyebrow, .contact-form h2, .contact-form > p { margin: 0; }
+.contact-form > p:not(.contact-form__status) { color: var(--muted); }
+.contact-form label { display: grid; gap: 7px; color: var(--ink); font-size: .82rem; font-weight: 850; }
+.contact-form input, .contact-form textarea { width: 100%; min-height: 46px; box-sizing: border-box; }
+.contact-form textarea { min-height: 125px; resize: vertical; }
+.contact-form__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.contact-form__honeypot { position: absolute; left: -9999px; }
+.contact-form__status { margin: 0; padding: 12px 14px; border: 1px solid transparent; border-radius: 8px; font-size: .9rem; font-weight: 750; }
+.contact-form__status--success { border-color: rgba(85, 123, 114, .35); background: #eef6f3; color: #355f55; }
+.contact-form__status--error { border-color: rgba(160, 71, 67, .3); background: #fff1f0; color: #8a3b38; }
+@media (max-width: 780px) { .contact-hero { padding: 58px 20px 48px; text-align: left; } .contact-section { padding: 46px 18px 70px; } .contact-layout { grid-template-columns: 1fr; gap: 28px; } .contact-form { padding: 22px 18px; } }
+@media (max-width: 460px) { .contact-form__grid { grid-template-columns: 1fr; } }

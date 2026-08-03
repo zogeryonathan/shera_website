@@ -229,9 +229,9 @@ export function BookingPage() {
           )}
 
           {!isLoading && !loadError && classGroups.length > 0 && (
-            <div className="schedule-grid" aria-live="polite">
+            <div className="schedule-grid schedule-grid--selected" aria-live="polite">
               {classGroups.map(({ dateIso, items }, dayIndex) => (
-                <section className={`schedule-day schedule-day--${dayIndex + 1}`} key={dateIso} aria-labelledby={`date-${dateIso}`}>
+                <section className={`schedule-day schedule-day--${dayIndex + 1} schedule-day--${items.length === 1 ? "single" : "multiple"}`} key={dateIso} aria-labelledby={`date-${dateIso}`}>
                   <h3 className="schedule-day__title" id={`date-${dateIso}`}>{items[0].day} <span>{items[0].date}</span></h3>
                   <div className="schedule-day__classes">
                     {items.map((classItem) => (

@@ -229,6 +229,25 @@ button.class-calendar__day.is-selected { border-color: var(--sage); background: 
   gap: 0;
 }
 
+/* A calendar selection represents one day, so its classes are easier to compare side by side. */
+.schedule-grid--selected { grid-template-columns: 1fr; }
+.schedule-grid--selected .schedule-day__classes {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 14px;
+  padding: 14px;
+}
+
+.schedule-grid--selected .booking-card {
+  min-height: 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+}
+
+.schedule-grid--selected .booking-card:last-child { border-bottom: 1px solid var(--line); }
+.schedule-grid--selected .booking-card__heading { min-height: 0; }
+
 .booking-card {
   display: flex;
   min-height: 330px;
@@ -665,6 +684,42 @@ input[aria-invalid="true"] {
 
   .schedule-grid {
     grid-template-columns: 1fr;
+  }
+
+  .schedule-grid--selected .schedule-day__classes {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .schedule-grid--selected .schedule-day--multiple .schedule-day__classes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .schedule-grid--selected .booking-card {
+    padding: 13px 11px;
+  }
+
+  .schedule-grid--selected .booking-card__date {
+    margin-bottom: 7px;
+    font-size: .62rem;
+  }
+
+  .schedule-grid--selected .booking-card h3 { font-size: 1.06rem; }
+
+  .schedule-grid--selected .booking-card__details {
+    gap: 8px;
+    margin: 13px 0 16px;
+  }
+
+  .schedule-grid--selected .booking-card__details dt { font-size: .6rem; }
+
+  .schedule-grid--selected .booking-card__details dd { font-size: .74rem; line-height: 1.28; }
+
+  .schedule-grid--selected .booking-card__button {
+    min-height: 40px;
+    padding-inline: 5px;
+    font-size: .7rem;
   }
 
   .booking-card {

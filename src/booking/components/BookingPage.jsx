@@ -263,9 +263,11 @@ export function BookingPage() {
         <ManageBookingModal
           latestBooking={latestBooking}
           clientSession={clientSession}
+          classes={classes}
           onVerified={handleVerified}
           onCancel={() => setIsManagingBooking(false)}
           onCancelled={handleCancelled}
+          onRescheduled={async () => { setIsManagingBooking(false); setStatus({ type: "success", message: "Your reservation has been rescheduled. Your session balance has not changed, and a confirmation email has been sent." }); await loadUpcomingClasses({ showLoader: false }); }}
         />
       )}
     </>

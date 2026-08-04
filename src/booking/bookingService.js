@@ -36,3 +36,4 @@ export function verifyCode(identity, code) { return request({ action: "verifyCod
 export async function submitBooking({ classId, attendanceType, clientNote, clientToken }) { return (await request({ action: "book", classId, attendanceType, clientNote, clientToken })).booking; }
 export function getClientBookings(clientToken) { return request({ action: "clientBookings", clientToken }); }
 export async function cancelBooking({ bookingId, clientToken }) { return (await request({ action: "cancelBooking", bookingId, clientToken })).cancellation; }
+export async function rescheduleBooking({ bookingId, classId, attendanceType, clientToken }) { return (await request({ action: "rescheduleBooking", bookingId, classId, attendanceType, clientToken })).reschedule; }

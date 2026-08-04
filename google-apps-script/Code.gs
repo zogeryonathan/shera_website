@@ -32,6 +32,7 @@ function doPost(event) {
     if (action === "clientbookings") return clientBookings_(request, spreadsheet);
     if (action === "book") return book_(request, spreadsheet);
     if (action === "cancelbooking") return cancelForClient_(request, spreadsheet);
+    if (action === "reschedulebooking") return rescheduleForClient_(request, spreadsheet);
     return response_({ success: false, code: "INVALID_ACTION", message: "This booking action is not supported." });
   } catch (error) { console.error(error); return response_({ success: false, code: "SERVER_ERROR", message: "Your request could not be completed. Please try again." }); }
   finally { if (lock.hasLock()) lock.releaseLock(); }
@@ -106,7 +107,7 @@ function clientBookings_(request, spreadsheet) {
   const bookings = objects_(spreadsheet.getSheetByName(SHEET_NAMES.BOOKINGS)).filter(function (row) { return String(row.ClientID) === String(auth.client.ClientID) && active_(row); }).map(function (row) {
     const classData = classes.get(String(row.ClassID)); if (!classData || classData.status === "Cancelled" || classStart_(classData).getTime() <= Date.now()) return null;
     const cutoff = new Date(classStart_(classData).getTime() - 24 * 60 * 60 * 1000);
-    return { bookingId: String(row.BookingID), className: classData.className, date: Utilities.formatDate(classData.date, timezone, "MMMM d"), dateIso: iso_(classData.date, timezone), time: classData.time, attendanceType: attendance_(row.AttendanceType), canCancel: cutoff.getTime() > Date.now(), cancellationCutoff: cutoff.toISOString() };
+    return { bookingId: String(row.BookingID), classId: String(row.ClassID), className: classData.className, date: Utilities.formatDate(classData.date, timezone, "MMMM d"), dateIso: iso_(classData.date, timezone), time: classData.time, attendanceType: attendance_(row.AttendanceType), canCancel: cutoff.getTime() > Date.now(), cancellationCutoff: cutoff.toISOString() };
   }).filter(Boolean);
   return response_({ success: true, client: publicClient_(auth.client), bookings: bookings });
 }
@@ -114,6 +115,11 @@ function clientBookings_(request, spreadsheet) {
 function cancelForClient_(request, spreadsheet) {
   const auth = requireClient_(request, spreadsheet); if (!auth.ok) return response_(auth.error);
   return response_(cancelRecord_(spreadsheet, clean_(request.bookingId, 120), "Client", auth.client, false));
+}
+
+function rescheduleForClient_(request, spreadsheet) {
+  const auth = requireClient_(request, spreadsheet); if (!auth.ok) return response_(auth.error);
+  return response_(rescheduleRecord_(spreadsheet, clean_(request.bookingId, 120), clean_(request.classId, 120), attendance_(request.attendanceType), "Client", auth.client, true));
 }
 
 function cancelRecord_(spreadsheet, bookingId, source, clientRequester, overrideCutoff) {
@@ -126,6 +132,33 @@ function cancelRecord_(spreadsheet, bookingId, source, clientRequester, override
   let updated = null; if (booking.ClientID) { const client = clientById_(spreadsheet, booking.ClientID); if (client) { changeBalance_(spreadsheet, client, 1, "Refund", String(booking.ClassID), source + " cancellation refund"); updated = clientById_(spreadsheet, booking.ClientID); } }
   const sent = cancellationEmail_({ FirstName: booking.FirstName, Email: booking.Email }, classData, source, updated, bookingId); setByKey_(sheet, "BookingID", bookingId, "EmailStatus", sent ? "Cancellation email sent" : "Cancellation email failed");
   return { success: true, message: "The reservation is cancelled and the session has been returned.", cancellation: { bookingId: bookingId, classId: String(booking.ClassID), remainingSessions: updated ? Number(updated.SessionsRemaining) : null } };
+}
+
+function rescheduleRecord_(spreadsheet, bookingId, targetClassId, attendance, source, clientRequester, enforceCutoff) {
+  const bookingsSheet = spreadsheet.getSheetByName(SHEET_NAMES.BOOKINGS);
+  const booking = objects_(bookingsSheet).find(function (row) { return String(row.BookingID) === bookingId; });
+  if (!booking || !active_(booking)) return { success: false, code: "BOOKING_NOT_FOUND", message: "This active booking could not be found." };
+  if (clientRequester && String(booking.ClientID) !== String(clientRequester.ClientID)) return { success: false, code: "BOOKING_NOT_FOUND", message: "This reservation is not linked to your account." };
+  if (!targetClassId || !attendance) return { success: false, code: "VALIDATION_ERROR", message: "Choose a new class and attendance type." };
+  if (String(booking.ClassID) === String(targetClassId)) return { success: false, code: "SAME_CLASS", message: "Choose a different class to reschedule this booking." };
+  const classes = classMap_(spreadsheet), oldClass = classes.get(String(booking.ClassID)), newClass = classes.get(String(targetClassId));
+  if (!oldClass || !newClass) return { success: false, code: "CLASS_NOT_FOUND", message: "One of the class dates could not be found." };
+  if (newClass.status === "Cancelled" || classStart_(newClass).getTime() <= Date.now()) return { success: false, code: "CLASS_NOT_AVAILABLE", message: "That new class is no longer available." };
+  if (enforceCutoff && classStart_(oldClass).getTime() - Date.now() <= 24 * 60 * 60 * 1000) return { success: false, code: "RESCHEDULE_CUTOFF", message: "Online rescheduling closes 24 hours before class. Please message Shera if you need help." };
+  const client = clientById_(spreadsheet, booking.ClientID);
+  if (!client) return { success: false, code: "CLIENT_NOT_FOUND", message: "The client profile could not be found." };
+  const allBookings = objects_(bookingsSheet);
+  if (allBookings.some(function (row) { return String(row.ClientID) === String(client.ClientID) && String(row.ClassID) === String(targetClassId) && active_(row); })) return { success: false, code: "DUPLICATE_BOOKING", message: "This client already has a reservation for that class." };
+  const capacity = attendance === "Online" ? newClass.onlineCapacity : newClass.inPersonCapacity;
+  const booked = allBookings.filter(function (row) { return String(row.ClassID) === String(targetClassId) && active_(row) && attendance_(row.AttendanceType) === attendance; }).length;
+  if (capacity < 1) return { success: false, code: "ATTENDANCE_NOT_AVAILABLE", message: attendance + " attendance is not available for that class." };
+  if (booked >= capacity) return { success: false, code: "CLASS_FULL", message: "The " + attendance.toLowerCase() + " spaces for that class are full." };
+  setValues_(bookingsSheet, findRow_(bookingsSheet, "BookingID", bookingId), { Status: "Rescheduled", CancelledAt: new Date(), CancellationSource: source + " rescheduled" });
+  const newBookingId = Utilities.getUuid();
+  append_(bookingsSheet, HEADERS.Bookings, { BookingID: newBookingId, ClassID: targetClassId, FirstName: client.FirstName, LastName: client.LastName, Email: client.Email, Timestamp: new Date(), Status: "Active", CancelCode: "", CancelledAt: "", AttendanceType: attendance, ClientNote: booking.ClientNote || "", ClientID: client.ClientID, SessionTransactionID: booking.SessionTransactionID || "", CancellationSource: "Rescheduled from " + bookingId, EmailStatus: "" });
+  const sent = rescheduleEmail_(client, oldClass, newClass, attendance, newBookingId);
+  setByKey_(bookingsSheet, "BookingID", newBookingId, "EmailStatus", sent ? "Reschedule email sent" : "Reschedule email failed");
+  return { success: true, message: "The reservation has been moved. The session balance is unchanged.", reschedule: { bookingId: newBookingId, classId: targetClassId, className: newClass.className, date: classText_(newClass), time: newClass.time, attendanceType: attendance, remainingSessions: Number(client.SessionsRemaining) } };
 }
 
 function adminAction_(action, request, spreadsheet) {
@@ -142,6 +175,7 @@ function adminAction_(action, request, spreadsheet) {
   if (action === "admindeleteclass") return deleteClass_(request, spreadsheet);
   if (action === "admincancelclass") return cancelClass_(request, spreadsheet);
   if (action === "admincancelbooking") return response_(cancelRecord_(spreadsheet, clean_(request.bookingId, 120), "Admin", null, true));
+  if (action === "adminreschedulebooking") return response_(rescheduleRecord_(spreadsheet, clean_(request.bookingId, 120), clean_(request.classId, 120), attendance_(request.attendanceType), "Admin", null, false));
   if (action === "adminupdatetemplate") return updateTemplate_(request, spreadsheet);
   if (action === "admincreatetemplate") return createTemplate_(request, spreadsheet);
   if (action === "admindeletetemplate") return deleteTemplate_(request, spreadsheet);
@@ -357,6 +391,7 @@ function changeBalance_(spreadsheet, client, amount, type, classId, note) {
 function history_(spreadsheet, clientId, type, amount, balanceAfter, classId, note, transactionId) { const client = clientById_(spreadsheet, clientId); append_(spreadsheet.getSheetByName(SHEET_NAMES.HISTORY), HEADERS["Session History"], { TransactionID: transactionId || Utilities.getUuid(), ClientID: clientId, Type: type, Amount: amount, BalanceAfter: balanceAfter, ClassID: classId || "", Note: note || "", CreatedAt: new Date(), AdminEmail: "", ClientName: client ? client.FirstName + " " + client.LastName : "Unknown client" }); }
 
 function bookingEmail_(client, classData, attendance, bookingId) { const zoom = attendance === "Online" && classData.zoomUrl ? "<p><strong>Zoom meeting:</strong> <a href=\"" + escape_(classData.zoomUrl) + "\">Join your online class</a></p>" : ""; const calendar = calendarAttachment_(classData, bookingId, attendance, false); return email_(client.Email, "Booking confirmed: " + classData.className, "<p>Hi " + escape_(client.FirstName) + ",</p><p>Your <strong>" + escape_(classData.className) + "</strong> booking is confirmed for " + classText_(classData) + ".</p><p><strong>Attendance:</strong> " + attendance + "<br><strong>Sessions remaining:</strong> " + client.SessionsRemaining + "</p>" + zoom + "<p><strong>Add it to your calendar:</strong> Open the attached calendar file to add this class to Google Calendar, Outlook, Apple Calendar, or another calendar app.</p><p><strong>Cancellation policy:</strong> Online cancellations are available until 24 hours before class starts.</p><p>— Shera Studio</p>", "Hi " + client.FirstName + ", your booking is confirmed for " + classText_(classData) + ". Attendance: " + attendance + ". Sessions remaining: " + client.SessionsRemaining + ". An Add to Calendar file is attached. Online cancellations close 24 hours before class.", calendar); }
+function rescheduleEmail_(client, oldClass, newClass, attendance, bookingId) { const zoom = attendance === "Online" && newClass.zoomUrl ? "<p><strong>Zoom meeting:</strong> <a href=\"" + escape_(newClass.zoomUrl) + "\">Join your online class</a></p>" : ""; const calendar = calendarAttachment_(newClass, bookingId, attendance, false); return email_(client.Email, "Booking rescheduled: " + newClass.className, "<p>Hi " + escape_(client.FirstName) + ",</p><p>Your Shera Studio reservation has been moved.</p><p><strong>Previous:</strong> " + escape_(classText_(oldClass)) + "<br><strong>New:</strong> " + escape_(classText_(newClass)) + "<br><strong>Attendance:</strong> " + attendance + "<br><strong>Sessions remaining:</strong> " + client.SessionsRemaining + "</p>" + zoom + "<p>Your session balance has not changed.</p><p><strong>Add it to your calendar:</strong> Open the attached calendar file to add your new class to Google Calendar, Outlook, Apple Calendar, or another calendar app.</p><p>— Shera Studio</p>", "Hi " + client.FirstName + ", your reservation has been moved from " + classText_(oldClass) + " to " + classText_(newClass) + ". Attendance: " + attendance + ". Sessions remaining: " + client.SessionsRemaining + ". Your session balance has not changed. An Add to Calendar file is attached.", calendar); }
 function notifyScheduleChange_(spreadsheet, bookings, oldClass, newClass) { bookings.forEach(function (booking) { const attendance = attendance_(booking.AttendanceType) || "In person", zoom = attendance === "Online" && newClass.zoomUrl ? "<p><strong>Zoom meeting:</strong> <a href=\"" + escape_(newClass.zoomUrl) + "\">Join your online class</a></p>" : ""; const sent = email_(String(booking.Email), "Class time changed: " + newClass.className, "<p>Hi " + escape_(booking.FirstName) + ",</p><p>Your Shera Studio class has been updated.</p><p><strong>Previous:</strong> " + escape_(classText_(oldClass)) + "<br><strong>New:</strong> " + escape_(classText_(newClass)) + "</p>" + zoom + "<p>Your booking is still confirmed.</p><p>— Shera Studio</p>", "Hi " + booking.FirstName + ", your class has changed from " + classText_(oldClass) + " to " + classText_(newClass) + ". Your booking is still confirmed."); setByKey_(spreadsheet.getSheetByName(SHEET_NAMES.BOOKINGS), "BookingID", String(booking.BookingID), "EmailStatus", sent ? "Schedule change email sent" : "Schedule change email failed"); }); }
 function cancellationEmail_(person, classData, source, client, bookingId) { const studio = source === "Class cancelled by studio"; const balance = client ? "<p><strong>Sessions remaining:</strong> " + client.SessionsRemaining + "</p>" : ""; const calendar = calendarAttachment_(classData, bookingId, "", true); return email_(person.Email, (studio ? "Class cancelled: " : "Booking cancelled: ") + classData.className, "<p>Hi " + escape_(person.FirstName) + ",</p><p>" + (studio ? "The studio has cancelled" : "Your reservation has been cancelled for") + " <strong>" + escape_(classData.className) + "</strong> on " + classText_(classData) + ".</p>" + balance + "<p>An updated calendar cancellation file is attached. Open it to remove the class from your calendar.</p><p>— Shera Studio</p>", "Hi " + person.FirstName + ", " + (studio ? "the studio has cancelled " : "your reservation has been cancelled for ") + classData.className + " on " + classText_(classData) + "." + (client ? " Sessions remaining: " + client.SessionsRemaining + "." : "") + " A calendar cancellation file is attached.", calendar); }
 function zeroEmail_(client) { return email_(client.Email, "Your Shera Studio sessions are finished", "<p>Hi " + escape_(client.FirstName) + ",</p><p>You have used your final available session. Please contact Shera to purchase more classes.</p><p>— Shera Studio</p>", "Hi " + client.FirstName + ", you have used your final available session. Please contact Shera to purchase more classes."); }

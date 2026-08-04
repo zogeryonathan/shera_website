@@ -61,6 +61,10 @@ export function cancelClientBooking(credential, bookingId) {
   return adminRequest("adminCancelBooking", credential, { bookingId });
 }
 
+export function rescheduleClientBooking(credential, booking) {
+  return adminRequest("adminRescheduleBooking", credential, booking);
+}
+
 export function updateTemplate(credential, template) {
   return adminRequest("adminUpdateTemplate", credential, template);
 }

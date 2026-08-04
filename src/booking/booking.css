@@ -565,6 +565,21 @@ button.class-calendar__day.is-selected { border-color: var(--sage); background: 
 
 .client-booking-item span, .client-booking-item small { color: var(--muted); font-weight: 650; }
 
+.client-booking-item__reschedule {
+  display: grid;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.client-booking-item__reschedule summary {
+  color: var(--sage);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.client-booking-item__reschedule .field { gap: 5px; }
+.client-booking-item__reschedule .button { justify-self: start; }
+
 .booking-modal__form .booking-status {
   margin: 0;
 }

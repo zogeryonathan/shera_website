@@ -14,12 +14,14 @@
 }
 
 .booking-hero h1 {
-  max-width: 760px;
-  font-size: clamp(2.55rem, 4.5vw, 4.35rem);
+  max-width: 660px;
+  font-size: clamp(2.15rem, 3.8vw, 3.6rem);
 }
 
 .booking-hero .lede {
   max-width: 660px;
+  margin-top: 18px;
+  font-size: 1rem;
 }
 
 .location-pill {
@@ -48,7 +50,7 @@
 
 .booking-section__head h2 {
   max-width: 700px;
-  font-size: clamp(2rem, 3.4vw, 3.3rem);
+  font-size: clamp(1.7rem, 2.7vw, 2.65rem);
 }
 
 .refresh-button {
@@ -107,7 +109,7 @@
 
 .class-calendar {
   margin: 0 0 24px;
-  padding: 18px;
+  padding: 14px;
   border: 1px solid var(--line);
   border-radius: 16px;
   background: var(--white);
@@ -125,18 +127,18 @@
 .class-calendar__head .eyebrow { margin: 0 0 5px; }
 .class-calendar__head h3 { font-size: clamp(1.3rem, 2.3vw, 1.75rem); }
 .class-calendar__controls { display: flex; align-items: center; gap: 10px; }
-.class-calendar__month { min-width: 145px; margin: 0; color: var(--ink); font-family: "Playfair Display", Georgia, serif; font-size: 1.1rem; font-weight: 800; text-align: center; }
+.class-calendar__month { min-width: 130px; margin: 0; color: var(--ink); font-family: "Playfair Display", Georgia, serif; font-size: .95rem; font-weight: 800; text-align: center; }
 .class-calendar__month-button {
   display: grid;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   place-items: center;
   border: 1px solid var(--line);
   border-radius: 50%;
   background: var(--white);
   color: var(--ink);
   font: inherit;
-  font-size: 1.75rem;
+  font-size: 1.4rem;
   line-height: 1;
   cursor: pointer;
 }
@@ -145,14 +147,15 @@
 .class-calendar__month-button:disabled { cursor: not-allowed; opacity: .35; }
 .class-calendar__weekdays,
 .class-calendar__days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
-.class-calendar__weekdays { margin-bottom: 6px; color: var(--muted); font-size: .66rem; font-weight: 900; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
+.class-calendar__weekdays { margin-bottom: 5px; color: var(--muted); font-size: .6rem; font-weight: 900; letter-spacing: .06em; text-align: center; text-transform: uppercase; }
 .class-calendar__day,
 .class-calendar__blank {
   display: grid;
-  min-height: 44px;
+  min-height: 40px;
   place-items: center;
   border-radius: 10px;
   font: inherit;
+  font-size: .86rem;
   font-weight: 850;
 }
 
@@ -613,7 +616,7 @@ input[aria-invalid="true"] {
   }
 
   .booking-hero__inner {
-    padding-top: 170px;
+    padding-top: 150px;
   }
 
   .schedule-grid {
@@ -648,17 +651,22 @@ input[aria-invalid="true"] {
   }
 
   .booking-hero {
-    padding: 38px 18px 34px;
+    padding: 30px 16px 28px;
     background-position: 50% 24px;
-    background-size: 195px auto;
+    background-size: 170px auto;
   }
 
   .booking-hero__inner {
-    padding-top: 148px;
+    padding-top: 128px;
   }
 
   .booking-hero h1 {
-    font-size: clamp(2.05rem, 10.5vw, 3rem);
+    font-size: clamp(1.8rem, 8.5vw, 2.4rem);
+  }
+
+  .booking-hero .lede {
+    margin-top: 14px;
+    font-size: .92rem;
   }
 
   .location-pill {
@@ -666,7 +674,7 @@ input[aria-invalid="true"] {
   }
 
   .booking-section {
-    padding: 38px 14px 58px;
+    padding: 30px 12px 50px;
   }
 
   .booking-section__head {
@@ -677,12 +685,12 @@ input[aria-invalid="true"] {
   }
 
   .booking-section__head h2 {
-    font-size: clamp(1.75rem, 9vw, 2.35rem);
+    font-size: clamp(1.45rem, 7.3vw, 1.9rem);
   }
 
   .class-calendar {
     margin-bottom: 18px;
-    padding: 12px;
+    padding: 9px;
     border-radius: 12px;
   }
 
@@ -697,7 +705,7 @@ input[aria-invalid="true"] {
 
   .class-calendar__month {
     min-width: 0;
-    font-size: 1rem;
+    font-size: .88rem;
   }
 
   .class-calendar__weekdays,
@@ -707,8 +715,13 @@ input[aria-invalid="true"] {
 
   .class-calendar__day,
   .class-calendar__blank {
-    min-height: 42px;
+    min-height: 36px;
     border-radius: 8px;
+    font-size: .78rem;
+  }
+
+  .class-calendar__weekdays {
+    font-size: .56rem;
   }
 
   .booking-section__actions {

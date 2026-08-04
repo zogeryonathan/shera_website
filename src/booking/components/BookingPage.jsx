@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BookingApiError, getClasses } from "../bookingService.js";
 import { clearLatestBooking, getLatestBooking, saveLatestBooking } from "../bookingStorage.js";
 import { BookingModal } from "./BookingModal.jsx";
@@ -32,6 +32,7 @@ export function BookingPage() {
   const [latestBooking, setLatestBooking] = useState(() => getLatestBooking());
   const [confirmation, setConfirmation] = useState(null);
   const [status, setStatus] = useState(null);
+  const confirmationRef = useRef(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [visibleMonth, setVisibleMonth] = useState(null);
   const [clientSession, setClientSession] = useState(() => {
@@ -92,6 +93,15 @@ export function BookingPage() {
       document.removeEventListener("visibilitychange", refreshInBackground);
     };
   }, [loadUpcomingClasses]);
+
+  useEffect(() => {
+    if (!confirmation) return undefined;
+    const timer = window.setTimeout(() => {
+      confirmationRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      confirmationRef.current?.focus({ preventScroll: true });
+    }, 100);
+    return () => window.clearTimeout(timer);
+  }, [confirmation]);
 
   const closeModal = useCallback(() => setSelectedClass(null), []);
 
@@ -171,7 +181,7 @@ export function BookingPage() {
           <StatusMessage status={status} />
 
           {confirmation && (
-            <section className="booking-confirmation" role="status" aria-live="polite">
+            <section ref={confirmationRef} className="booking-confirmation" role="status" aria-live="polite" tabIndex="-1">
               <div>
                 <p className="eyebrow">Reservation confirmed</p>
                 <h3>{confirmation.className}</h3>

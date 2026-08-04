@@ -42,6 +42,14 @@ function ContactPage() {
       <div className="contact-options"><p className="eyebrow">Message directly</p><h2>Choose the easiest way to reach Shera.</h2><p>For a quick question, WhatsApp is best. Text messaging is also available on your phone.</p>
         <a className="contact-method contact-method--whatsapp" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`} target="_blank" rel="noopener noreferrer"><strong>Message Shera on WhatsApp</strong><span>Open a private chat and send a message when you are ready.</span></a>
         <a className="contact-method" href={`sms:+${WHATSAPP_NUMBER}?body=${encodedMessage}`}><strong>Send a Text Message</strong><span>Opens your phone’s Messages app.</span></a>
+        <div className="contact-social" aria-label="Shera Studio social media">
+          <p className="eyebrow">Follow Shera on social media</p>
+          <div className="contact-social__links">
+            <a href="https://www.instagram.com/sherazade.mami?igsh=MTdvMTFtd2gzajVwcg==" target="_blank" rel="noopener noreferrer"><strong>Instagram</strong><span>Classes, movement, and studio updates</span></a>
+            <a href="https://www.facebook.com/share/1HkBvUbRAo/" target="_blank" rel="noopener noreferrer"><strong>Facebook</strong><span>Follow Shera Studio on Facebook</span></a>
+            <a href="https://youtube.com/@sheramami59?si=cx4A00aYEkPImqI-" target="_blank" rel="noopener noreferrer"><strong>YouTube</strong><span>Watch Shera’s videos</span></a>
+          </div>
+        </div>
       </div>
       <form className="contact-form" onSubmit={submit} noValidate><p className="eyebrow">Send an inquiry</p><h2>Prefer an email reply?</h2><p>Send the details below. Shera receives your message directly by email.</p>
         <div className="contact-form__grid"><label>First name<input name="firstName" autoComplete="given-name" maxLength="80" value={form.firstName} onChange={change} disabled={sending} /></label><label>Last name<input name="lastName" autoComplete="family-name" maxLength="80" value={form.lastName} onChange={change} disabled={sending} /></label></div>

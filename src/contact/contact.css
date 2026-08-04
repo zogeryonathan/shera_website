@@ -10,6 +10,13 @@
 .contact-method strong { font-size: 1.04rem; }
 .contact-method span { color: var(--muted); font-size: .9rem; font-weight: 650; line-height: 1.5; }
 .contact-method--whatsapp { border-color: rgba(85, 123, 114, .42); background: #edf5f2; }
+.contact-social { display: grid; gap: 12px; margin-top: 14px; padding-top: 24px; border-top: 1px solid var(--line); }
+.contact-social .eyebrow { margin: 0; }
+.contact-social__links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+.contact-social__links a { display: grid; gap: 5px; min-width: 0; padding: 15px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); color: var(--ink); text-align: center; text-decoration: none; transition: border-color .18s ease, background .18s ease, transform .18s ease; }
+.contact-social__links a:hover { transform: translateY(-2px); border-color: var(--sage); background: #edf5f2; }
+.contact-social__links strong { color: var(--sage); font-size: .92rem; }
+.contact-social__links span { color: var(--muted); font-size: .72rem; font-weight: 650; line-height: 1.35; }
 .contact-form { display: grid; gap: 16px; padding: 30px; border: 1px solid var(--line); border-radius: 14px; background: var(--white); box-shadow: 0 16px 40px rgba(70, 51, 34, .06); }
 .contact-form .eyebrow, .contact-form h2, .contact-form > p { margin: 0; }
 .contact-form > p:not(.contact-form__status) { color: var(--muted); }
@@ -22,4 +29,4 @@
 .contact-form__status--success { border-color: rgba(85, 123, 114, .35); background: #eef6f3; color: #355f55; }
 .contact-form__status--error { border-color: rgba(160, 71, 67, .3); background: #fff1f0; color: #8a3b38; }
 @media (max-width: 780px) { .contact-hero { padding: 58px 20px 48px; text-align: left; } .contact-section { padding: 46px 18px 70px; } .contact-layout { grid-template-columns: 1fr; gap: 28px; } .contact-form { padding: 22px 18px; } }
-@media (max-width: 460px) { .contact-form__grid { grid-template-columns: 1fr; } }
+@media (max-width: 460px) { .contact-form__grid { grid-template-columns: 1fr; } .contact-social__links { grid-template-columns: 1fr; } .contact-social__links a { text-align: left; } }

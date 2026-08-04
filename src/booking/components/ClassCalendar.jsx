@@ -41,12 +41,8 @@ export function ClassCalendar({ availableDates, selectedDate, visibleMonth, onMo
   const canGoForward = monthStart < lastAvailableMonth;
 
   return (
-    <section className="class-calendar" aria-labelledby="class-calendar-title">
+    <section className="class-calendar" aria-label="Class calendar">
       <div className="class-calendar__head">
-        <div>
-          <p className="eyebrow">Choose a date</p>
-          <h3 id="class-calendar-title">Find a class that fits your week.</h3>
-        </div>
         <div className="class-calendar__controls" aria-label="Calendar month controls">
           <button className="class-calendar__month-button" type="button" onClick={() => onMonthChange(addMonths(monthStart, -1))} disabled={!canGoBack} aria-label="Show previous month">‹</button>
           <p className="class-calendar__month" aria-live="polite">{formatMonth(monthStart)}</p>

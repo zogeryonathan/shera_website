@@ -186,6 +186,7 @@ export function BookingPage() {
                 <p className="eyebrow">Reservation confirmed</p>
                 <h3>{confirmation.className}</h3>
                 <p>{confirmation.date} · {confirmation.time}</p>
+                <p className="booking-confirmation__balance">{confirmation.remainingSessions} paid session{Number(confirmation.remainingSessions) === 1 ? "" : "s"} remaining</p>
               </div>
               <p className="booking-confirmation__note">A confirmation email has been sent. Use secure email verification to manage your reservation.</p>
               <button className="button secondary" type="button" onClick={() => setIsManagingBooking(true)}>

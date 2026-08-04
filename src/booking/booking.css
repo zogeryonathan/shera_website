@@ -187,6 +187,13 @@ button.class-calendar__day.is-selected { border-color: var(--sage); background: 
   font-weight: 700;
 }
 
+.booking-confirmation__balance {
+  margin-top: 8px !important;
+  color: var(--sage);
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
 .schedule-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

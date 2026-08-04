@@ -1,5 +1,5 @@
 .booking-hero {
-  padding: 86px 22px 72px;
+  padding: 62px 22px 52px;
   border-bottom: 1px solid var(--line);
   background-color: var(--white);
   background-image: url("/assets/images/sherazade-mami-logo.png");
@@ -15,7 +15,7 @@
 
 .booking-hero h1 {
   max-width: 760px;
-  font-size: clamp(3rem, 6vw, 5.6rem);
+  font-size: clamp(2.55rem, 4.5vw, 4.35rem);
 }
 
 .booking-hero .lede {
@@ -35,7 +35,7 @@
 }
 
 .booking-section {
-  padding: 78px 22px 96px;
+  padding: 52px 22px 76px;
 }
 
 .booking-section__head {
@@ -43,11 +43,12 @@
   align-items: end;
   justify-content: center;
   gap: 24px;
-  margin-bottom: 36px;
+  margin-bottom: 24px;
 }
 
 .booking-section__head h2 {
   max-width: 700px;
+  font-size: clamp(2rem, 3.4vw, 3.3rem);
 }
 
 .refresh-button {
@@ -105,8 +106,8 @@
 }
 
 .class-calendar {
-  margin: 0 0 34px;
-  padding: 26px;
+  margin: 0 0 24px;
+  padding: 18px;
   border: 1px solid var(--line);
   border-radius: 16px;
   background: var(--white);
@@ -117,8 +118,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
-  margin-bottom: 22px;
+  gap: 14px;
+  margin-bottom: 14px;
 }
 
 .class-calendar__head .eyebrow { margin: 0 0 5px; }
@@ -127,8 +128,8 @@
 .class-calendar__month { min-width: 145px; margin: 0; color: var(--ink); font-family: "Playfair Display", Georgia, serif; font-size: 1.1rem; font-weight: 800; text-align: center; }
 .class-calendar__month-button {
   display: grid;
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   place-items: center;
   border: 1px solid var(--line);
   border-radius: 50%;
@@ -143,12 +144,12 @@
 .class-calendar__month-button:not(:disabled):hover { border-color: var(--sage); background: #eef6f3; color: var(--sage); }
 .class-calendar__month-button:disabled { cursor: not-allowed; opacity: .35; }
 .class-calendar__weekdays,
-.class-calendar__days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 7px; }
-.class-calendar__weekdays { margin-bottom: 8px; color: var(--muted); font-size: .7rem; font-weight: 900; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
+.class-calendar__days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+.class-calendar__weekdays { margin-bottom: 6px; color: var(--muted); font-size: .66rem; font-weight: 900; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
 .class-calendar__day,
 .class-calendar__blank {
   display: grid;
-  min-height: 54px;
+  min-height: 44px;
   place-items: center;
   border-radius: 10px;
   font: inherit;
@@ -160,7 +161,7 @@ button.class-calendar__day { border-color: rgba(85, 123, 114, 0.26); background:
 button.class-calendar__day:hover { border-color: var(--sage); background: #dcece6; }
 button.class-calendar__day.is-selected { border-color: var(--sage); background: var(--sage); color: var(--white); box-shadow: 0 6px 16px rgba(53, 95, 85, 0.22); }
 .class-calendar__day--disabled { opacity: .65; }
-.class-calendar__hint { margin: 17px 0 0; color: var(--muted); font-size: .83rem; font-weight: 650; }
+.class-calendar__hint { margin: 12px 0 0; color: var(--muted); font-size: .8rem; font-weight: 650; }
 
 .booking-confirmation {
   display: grid;
@@ -612,7 +613,7 @@ input[aria-invalid="true"] {
   }
 
   .booking-hero__inner {
-    padding-top: 200px;
+    padding-top: 170px;
   }
 
   .schedule-grid {
@@ -647,17 +648,17 @@ input[aria-invalid="true"] {
   }
 
   .booking-hero {
-    padding: 54px 22px 48px;
+    padding: 38px 18px 34px;
     background-position: 50% 24px;
-    background-size: 230px auto;
+    background-size: 195px auto;
   }
 
   .booking-hero__inner {
-    padding-top: 176px;
+    padding-top: 148px;
   }
 
   .booking-hero h1 {
-    font-size: clamp(2.6rem, 13vw, 4rem);
+    font-size: clamp(2.05rem, 10.5vw, 3rem);
   }
 
   .location-pill {
@@ -665,12 +666,49 @@ input[aria-invalid="true"] {
   }
 
   .booking-section {
-    padding: 56px 18px 70px;
+    padding: 38px 14px 58px;
   }
 
   .booking-section__head {
     align-items: stretch;
     flex-direction: column;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+
+  .booking-section__head h2 {
+    font-size: clamp(1.75rem, 9vw, 2.35rem);
+  }
+
+  .class-calendar {
+    margin-bottom: 18px;
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .class-calendar__head {
+    margin-bottom: 11px;
+  }
+
+  .class-calendar__controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .class-calendar__month {
+    min-width: 0;
+    font-size: 1rem;
+  }
+
+  .class-calendar__weekdays,
+  .class-calendar__days {
+    gap: 4px;
+  }
+
+  .class-calendar__day,
+  .class-calendar__blank {
+    min-height: 42px;
+    border-radius: 8px;
   }
 
   .booking-section__actions {

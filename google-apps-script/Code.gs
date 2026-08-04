@@ -86,7 +86,7 @@ function book_(request, spreadsheet) {
   const auth = requireClient_(request, spreadsheet); if (!auth.ok) return response_(auth.error); const client = auth.client;
   const classId = clean_(request.classId, 120); const attendance = attendance_(request.attendanceType); const note = clean_(request.clientNote, 800);
   if (!classId || !attendance) return response_({ success: false, code: "VALIDATION_ERROR", message: "Choose a class and attendance type." });
-  if (Number(client.SessionsRemaining) < 1) return response_({ success: false, code: "NO_SESSIONS", message: "You have no sessions remaining. Please contact Shera to purchase more classes." });
+  if (Number(client.SessionsRemaining) < 1) return response_({ success: false, code: "NO_SESSIONS", message: "Your class package is complete. Message Shera to renew your sessions, then you’ll be ready to book your next class." });
   const classData = classMap_(spreadsheet).get(classId); if (!classData || classData.status === "Cancelled" || classStart_(classData).getTime() <= Date.now()) return response_({ success: false, code: "CLASS_NOT_AVAILABLE", message: "This class is no longer available." });
   const bookings = objects_(spreadsheet.getSheetByName(SHEET_NAMES.BOOKINGS));
   if (bookings.some(function (row) { return String(row.ClassID) === classId && String(row.ClientID) === String(client.ClientID) && active_(row); })) return response_({ success: false, code: "DUPLICATE_BOOKING", message: "You already have a reservation for this class." });

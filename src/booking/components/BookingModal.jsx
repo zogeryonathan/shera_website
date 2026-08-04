@@ -13,6 +13,7 @@ export function BookingModal({ classItem, clientSession, onVerified, onCancel, o
   const inPersonAvailable = Number(classItem.inPersonRemaining) > 0;
   const onlineAvailable = Number(classItem.onlineRemaining) > 0;
   const hasAvailability = inPersonAvailable || onlineAvailable;
+  const hasSessions = Number(clientSession?.client.sessionsRemaining) > 0;
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -58,7 +59,13 @@ export function BookingModal({ classItem, clientSession, onVerified, onCancel, o
               <span>{clientSession.client.sessionsRemaining} paid session{Number(clientSession.client.sessionsRemaining) === 1 ? "" : "s"} remaining</span>
             </div>
 
-            {!hasAvailability ? (
+            {!hasSessions ? (
+              <div className="booking-status booking-status--error booking-status--action" role="alert">
+                <strong>Your class package is complete.</strong>
+                <p>Message Shera to renew your sessions, then you’ll be ready to book your next class.</p>
+                <a className="button secondary" href="contact.html?topic=booking">Message Shera to Renew Sessions</a>
+              </div>
+            ) : !hasAvailability ? (
               <div className="booking-status booking-status--error" role="alert">This class is now full. Please choose another class.</div>
             ) : (
               <fieldset className="attendance-choice" disabled={isSubmitting}>
@@ -74,15 +81,15 @@ export function BookingModal({ classItem, clientSession, onVerified, onCancel, o
               </fieldset>
             )}
 
-            <label className="field">
+            {hasSessions && <label className="field">
               Note for Shera <span className="field-optional">(optional)</span>
               <textarea value={clientNote} onChange={(event) => setClientNote(event.target.value)} maxLength="500" placeholder="Goals, an injury consideration, or anything helpful for Shera to know." disabled={isSubmitting || !hasAvailability} />
-            </label>
+            </label>}
 
             {submitError && <div className="booking-status booking-status--error" role="alert">{submitError}</div>}
-            <p className="booking-modal__security">Cancellations are available online until 24 hours before the class starts.</p>
+            {hasSessions && <p className="booking-modal__security">Cancellations are available online until 24 hours before the class starts.</p>}
             <div className="booking-modal__actions">
-              <button className="button gold" type="submit" disabled={isSubmitting || !hasAvailability}>
+              <button className="button gold" type="submit" disabled={isSubmitting || !hasAvailability || !hasSessions}>
                 {isSubmitting && <span className="loading-spinner" aria-hidden="true" />}
                 {isSubmitting ? "Reserving…" : "Reserve Spot"}
               </button>

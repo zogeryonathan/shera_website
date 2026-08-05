@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export function ClassEditor({ classItem, rescheduleClasses = [], isBusy, onUpdate, onDelete, onCancelBooking, onCancelClass, onRescheduleBooking, dailyBookings = false }) {
+export function ClassEditor({ classItem, rescheduleClasses = [], isBusy, onUpdate, onDelete, onCancelBooking, onCancelClass, onRescheduleBooking, onSendAnnouncement, dailyBookings = false }) {
   const [date, setDate] = useState(classItem.date);
   const [className, setClassName] = useState(classItem.className);
   const [time, setTime] = useState(classItem.time);
@@ -9,9 +9,21 @@ export function ClassEditor({ classItem, rescheduleClasses = [], isBusy, onUpdat
   const [onlineCapacity, setOnlineCapacity] = useState(classItem.onlineCapacity ?? 0);
   const [zoomUrl, setZoomUrl] = useState(classItem.zoomUrl ?? "");
   const [moves, setMoves] = useState({});
+  const [showAnnouncement, setShowAnnouncement] = useState(false);
+  const [announcement, setAnnouncement] = useState({ subject: "", message: "" });
   const activeBookings = classItem.bookings.filter((booking) => booking.status === "Active");
   const cancelledCount = classItem.bookings.length - activeBookings.length;
   const setMove = (bookingId, field, value) => setMoves((current) => ({ ...current, [bookingId]: { attendanceType: "In person", ...current[bookingId], [field]: value } }));
+  function sendAnnouncement(event) {
+    event.preventDefault();
+    const subject = announcement.subject.trim();
+    const message = announcement.message.trim();
+    if (!subject || !message || activeBookings.length === 0) return;
+    if (!window.confirm(`Send this email to ${activeBookings.length} active participant${activeBookings.length === 1 ? "" : "s"}?`)) return;
+    onSendAnnouncement({ classId: classItem.classId, subject, message });
+    setAnnouncement({ subject: "", message: "" });
+    setShowAnnouncement(false);
+  }
 
   return (
     <article className="admin-class-card">
@@ -31,6 +43,11 @@ export function ClassEditor({ classItem, rescheduleClasses = [], isBusy, onUpdat
         {classItem.status !== "Cancelled" && <button className="admin-danger" type="button" disabled={isBusy} onClick={() => onCancelClass(classItem.classId)}>Cancel Class</button>}
         <button className="admin-danger" type="button" disabled={isBusy || activeBookings.length > 0} onClick={() => onDelete(classItem.classId)}>Delete Class</button>
       </div>
+      <section className="admin-announcement" aria-label={`Announcement for ${classItem.className}`}>
+        <div className="admin-announcement__head"><div><strong>Class announcement</strong><span>{activeBookings.length} active participant{activeBookings.length === 1 ? "" : "s"} will receive an individual email.</span></div><button className="button secondary" type="button" disabled={isBusy || activeBookings.length === 0} onClick={() => setShowAnnouncement((current) => !current)}>{showAnnouncement ? "Close announcement" : "Send announcement"}</button></div>
+        {activeBookings.length === 0 && <p>No active participants are currently booked into this class.</p>}
+        {showAnnouncement && <form className="admin-announcement__form" onSubmit={sendAnnouncement}><p><strong>{classItem.className}</strong><br />{classItem.date} · {classItem.time}</p><label>Email subject<input value={announcement.subject} onChange={(event) => setAnnouncement((current) => ({ ...current, subject: event.target.value }))} maxLength="160" required disabled={isBusy} placeholder="Important update about your class" /></label><label>Message<textarea value={announcement.message} onChange={(event) => setAnnouncement((current) => ({ ...current, message: event.target.value }))} maxLength="2500" required disabled={isBusy} placeholder="Write the message for everyone booked into this class." /></label><div className="admin-announcement__actions"><button className="button secondary" type="button" disabled={isBusy} onClick={() => setShowAnnouncement(false)}>Cancel</button><button className="button gold" type="submit" disabled={isBusy}>Send to {activeBookings.length} participant{activeBookings.length === 1 ? "" : "s"}</button></div></form>}
+      </section>
       <details className="admin-bookings" open={dailyBookings}>
         <summary>{activeBookings.length} active - {cancelledCount} cancelled</summary>
         {classItem.bookings.length === 0 ? <p>No bookings.</p> : (

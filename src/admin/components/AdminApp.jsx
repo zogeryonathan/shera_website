@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { bookClient, bulkRemoveClasses, bulkUpdateClasses, cancelClass, cancelClientBooking, createClass, createClient, createManyClasses, createTemplate, deleteClass, deleteClient, deleteTemplate, duplicateWeek, generateClasses, getAdminDashboard, rescheduleClientBooking, topUpClient, updateClass, updateClient, updateTemplate } from "../adminService.js";
+import { bookClient, bulkRemoveClasses, bulkUpdateClasses, cancelClass, cancelClientBooking, createClass, createClient, createManyClasses, createTemplate, deleteClass, deleteClient, deleteTemplate, duplicateWeek, generateClasses, getAdminDashboard, rescheduleClientBooking, sendClassAnnouncement, topUpClient, updateClass, updateClient, updateTemplate } from "../adminService.js";
 import { ClassManager } from "./ClassManager.jsx";
 import { ClientManager } from "./ClientManager.jsx";
 import { GoogleAdminLogin } from "./GoogleAdminLogin.jsx";
@@ -96,7 +96,8 @@ export function AdminApp() {
             onDelete={(classId) => { if (window.confirm("Delete this class?")) mutate(() => deleteClass(credential, classId), "Class deleted."); }}
             onCancelClass={(classId) => { if (window.confirm("Cancel this class? All booked clients will be refunded and emailed.")) mutate(() => cancelClass(credential, classId), "Class cancelled."); }}
             onCancelBooking={(bookingId) => { if (window.confirm("Cancel this client booking?")) mutate(() => cancelClientBooking(credential, bookingId), "Booking cancelled."); }}
-            onRescheduleBooking={(booking) => { if (window.confirm("Move this client booking to the selected class?")) mutate(() => rescheduleClientBooking(credential, booking), "Booking rescheduled."); }} />
+            onRescheduleBooking={(booking) => { if (window.confirm("Move this client booking to the selected class?")) mutate(() => rescheduleClientBooking(credential, booking), "Booking rescheduled."); }}
+            onSendAnnouncement={(announcement) => mutate(() => sendClassAnnouncement(credential, announcement), "Announcement sent.")} />
         ) : activeView === "clients" ? (
           <ClientManager clients={dashboard.clients || []} history={dashboard.sessionHistory || []} classes={dashboard.classes || []} isBusy={isBusy}
             onCreate={(client) => mutate(() => createClient(credential, client), "Client profile created.")}

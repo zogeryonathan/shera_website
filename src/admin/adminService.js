@@ -85,3 +85,4 @@ export function deleteClient(credential, clientId) { return adminRequest("adminD
 export function topUpClient(credential, clientId, sessions, note = "") { return adminRequest("adminTopUpClient", credential, { clientId, sessions, note }); }
 export function bookClient(credential, booking) { return adminRequest("adminBookForClient", credential, booking); }
 export function cancelClass(credential, classId) { return adminRequest("adminCancelClass", credential, { classId }); }
+export function sendClassAnnouncement(credential, announcement) { return adminRequest("adminSendClassAnnouncement", credential, announcement); }

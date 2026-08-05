@@ -1,6 +1,9 @@
 import { API_URL } from "../booking/config.js";
 
-const REQUEST_TIMEOUT_MS = 20000;
+// Apps Script can take several seconds to wake from sleep, especially when a
+// report reads a larger sheet. Give admin actions enough time to complete while
+// still surfacing a useful error instead of leaving the page hanging forever.
+const REQUEST_TIMEOUT_MS = 60000;
 
 export class AdminApiError extends Error {
   constructor(message, code = "ADMIN_API_ERROR") {

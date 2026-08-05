@@ -156,7 +156,8 @@ function rescheduleRecord_(spreadsheet, bookingId, targetClassId, attendance, so
   setValues_(bookingsSheet, findRow_(bookingsSheet, "BookingID", bookingId), { Status: "Rescheduled", CancelledAt: new Date(), CancellationSource: source + " rescheduled" });
   const newBookingId = Utilities.getUuid();
   append_(bookingsSheet, HEADERS.Bookings, { BookingID: newBookingId, ClassID: targetClassId, FirstName: client.FirstName, LastName: client.LastName, Email: client.Email, Timestamp: new Date(), Status: "Active", CancelCode: "", CancelledAt: "", AttendanceType: attendance, ClientNote: booking.ClientNote || "", ClientID: client.ClientID, SessionTransactionID: booking.SessionTransactionID || "", CancellationSource: "Rescheduled from " + bookingId, EmailStatus: "" });
-  const sent = rescheduleEmail_(client, oldClass, newClass, attendance, newBookingId);
+  const sent = rescheduleCalendarEmail_(client, oldClass, newClass, attendance, String(booking.BookingID), newBookingId, attendance_(booking.AttendanceType));
+  setByKey_(bookingsSheet, "BookingID", bookingId, "EmailStatus", sent ? "Reschedule cancellation sent" : "Reschedule cancellation email failed");
   setByKey_(bookingsSheet, "BookingID", newBookingId, "EmailStatus", sent ? "Reschedule email sent" : "Reschedule email failed");
   return { success: true, message: "The reservation has been moved. The session balance is unchanged.", reschedule: { bookingId: newBookingId, classId: targetClassId, className: newClass.className, date: classText_(newClass), time: newClass.time, attendanceType: attendance, remainingSessions: Number(client.SessionsRemaining) } };
 }

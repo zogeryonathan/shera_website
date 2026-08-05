@@ -178,6 +178,7 @@ function adminAction_(action, request, spreadsheet) {
   if (action === "admincancelbooking") return response_(cancelRecord_(spreadsheet, clean_(request.bookingId, 120), "Admin", null, true));
   if (action === "adminreschedulebooking") return response_(rescheduleRecord_(spreadsheet, clean_(request.bookingId, 120), clean_(request.classId, 120), attendance_(request.attendanceType), "Admin", null, false));
   if (action === "adminsendclassannouncement") return sendClassAnnouncement_(request, spreadsheet);
+  if (action === "adminattendancereport") return attendanceReport_(request, spreadsheet);
   if (action === "adminupdatetemplate") return updateTemplate_(request, spreadsheet);
   if (action === "admincreatetemplate") return createTemplate_(request, spreadsheet);
   if (action === "admindeletetemplate") return deleteTemplate_(request, spreadsheet);

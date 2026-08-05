@@ -1,10 +1,11 @@
 import { useCallback, useMemo, useState } from "react";
-import { bookClient, bulkRemoveClasses, bulkUpdateClasses, cancelClass, cancelClientBooking, createClass, createClient, createManyClasses, createTemplate, deleteClass, deleteClient, deleteTemplate, duplicateWeek, generateClasses, getAdminDashboard, rescheduleClientBooking, sendClassAnnouncement, topUpClient, updateClass, updateClient, updateTemplate } from "../adminService.js";
+import { bookClient, bulkRemoveClasses, bulkUpdateClasses, cancelClass, cancelClientBooking, createClass, createClient, createManyClasses, createTemplate, deleteClass, deleteClient, deleteTemplate, duplicateWeek, generateClasses, getAdminDashboard, getAttendanceReport, rescheduleClientBooking, sendClassAnnouncement, topUpClient, updateClass, updateClient, updateTemplate } from "../adminService.js";
 import { ClassManager } from "./ClassManager.jsx";
 import { ClientManager } from "./ClientManager.jsx";
 import { GoogleAdminLogin } from "./GoogleAdminLogin.jsx";
 import { ScheduleManager } from "./ScheduleManager.jsx";
 import { SummaryCards } from "./SummaryCards.jsx";
+import { AttendanceReport } from "./AttendanceReport.jsx";
 
 export function AdminApp() {
   const isDailyBookingsPage = window.location.pathname.endsWith("/admin-bookings.html");
@@ -15,6 +16,7 @@ export function AdminApp() {
   const [status, setStatus] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [classView, setClassView] = useState("upcoming");
+  const [attendanceReport, setAttendanceReport] = useState(null);
 
   const filteredClasses = useMemo(() => {
     if (!dashboard) return [];
@@ -63,6 +65,20 @@ export function AdminApp() {
     }
   }
 
+  async function loadAttendanceReport(range) {
+    setIsBusy(true);
+    setStatus(null);
+    try {
+      const result = await getAttendanceReport(credential, range);
+      setAttendanceReport(result.report);
+      setStatus({ type: "success", message: `Report generated: ${result.report.totalAttendanceRecords} class attendances.` });
+    } catch (error) {
+      setStatus({ type: "error", message: error.message });
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
   if (!credential || !dashboard) {
     return <><GoogleAdminLogin onCredential={handleCredential} />{status && <div className={`admin-toast admin-toast--${status.type}`} role="alert">{status.message}</div>}</>;
   }
@@ -84,10 +100,11 @@ export function AdminApp() {
           <button type="button" className={activeView === "classes" ? "active" : ""} onClick={() => setActiveView("classes")}>Classes & Bookings</button>
           <button type="button" className={activeView === "schedule" ? "active" : ""} onClick={() => setActiveView("schedule")}>Schedule & Future Classes</button>
           <button type="button" className={activeView === "clients" ? "active" : ""} onClick={() => setActiveView("clients")}>Clients & Sessions</button>
+          <button type="button" className={activeView === "reports" ? "active" : ""} onClick={() => setActiveView("reports")}>Attendance Report</button>
           <button type="button" onClick={() => loadDashboard(credential)} disabled={isBusy}>Refresh</button>
         </nav>}
         {isBusy && <div className="admin-progress" role="status">Updating dashboard…</div>}
-        {(isDailyBookingsPage || activeView === "classes") ? (
+        {activeView === "reports" ? <AttendanceReport report={attendanceReport} isBusy={isBusy} onLoad={loadAttendanceReport} /> : (isDailyBookingsPage || activeView === "classes") ? (
           <ClassManager classes={filteredClasses} allClasses={dashboard.classes} templates={dashboard.templates} isBusy={isBusy} classView={classView} selectedDate={selectedDate}
             dailyBookings={isDailyBookingsPage} onClassView={setClassView} onDate={setSelectedDate}
             onCreate={(item) => mutate(() => createClass(credential, item), "Class added.")}
